@@ -30,14 +30,14 @@ If you want to run the node directly, you must call it this way:
 ### How do I earn rewards?
 To be able to earn rewards you need to make sure that the light node is registered on Sophon so we can monitor your node's activity.
 
-By using the Railway template, we automatically register your node for you.
+By using the Railway template (or the Docker image), we automatically register your node for you.
 
 ### I don't want to use Railway
 If you do not wish to use this Railway template to spin up you light node, you can take a look at the [Development Docs](DEV_README.md)
 
 ### I want to change my node URL (or IP)
 TODO (@ryan)
-You can change your public domain by making a POST /nodes request sending the relevant information in the body of the message:
+You can change your public domain by making a `PUT /nodes` request sending the relevant information in the body of the message:
 
 ```
 curl -X POST /nodes \
@@ -48,8 +48,9 @@ curl -X POST /nodes \
   "signed_message": YOU_SIGNED_MESSAGE
 }'
 ```
+*This call requires you to sign a message so we can verify you are the owner of the delegated address.*
 
-*This call requires you to sign a message so we can verify you are the owner of the delegated address*
 
 ### How do I sign the message?
 TODO (@ryan)
+The signed message is a UNIX timestamp signed with your delegated wallet. Signatures expire after 5 minutes.
