@@ -36,21 +36,18 @@ By using the Railway template (or the Docker image), we automatically register y
 If you do not wish to use this Railway template to spin up you light node, you can take a look at the [Development Docs](DEV_README.md)
 
 ### I want to change my node URL (or IP)
-TODO (@ryan)
 You can change your public domain by making a `PUT /nodes` request sending the relevant information in the body of the message:
 
 ```
-curl -X POST /nodes \
+curl -X PUT "/nodes" \
 -H "Content-Type: application/json" \
--d '{
-  "delegated_address": YOUR_DELEGATED_ADDRESS,
-  "url": YOUR_NEW_URL
-  "signed_message": YOU_SIGNED_MESSAGE
-}'
+-H "Authorization: Bearer SIGNED_MESSAGE" \
+-d '{ "id": "NODE_ID", "delegateAddress": "DELEGATE_ADDRESS", "url": "NEW_URL", "timestamp": TIMESTAMP}'
 ```
+
 *This call requires you to sign a message so we can verify you are the owner of the delegated address.*
 
-
 ### How do I sign the message?
-TODO (@ryan)
-The signed message is a UNIX timestamp signed with your delegated wallet. Signatures expire after 5 minutes.
+The signed message is a UNIX timestamp (in milliseconds format) signed with your delegated wallet. Signatures expire after 15 minutes.
+
+You can use [Etherscan](https://etherscan.io/verifiedSignatures#) to sign messages.
