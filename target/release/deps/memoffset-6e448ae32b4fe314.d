@@ -1,0 +1,10 @@
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/libmemoffset-6e448ae32b4fe314.rmeta: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/raw_field.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/offset_of.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/span_of.rs
+
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/libmemoffset-6e448ae32b4fe314.rlib: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/raw_field.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/offset_of.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/span_of.rs
+
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/memoffset-6e448ae32b4fe314.d: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/raw_field.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/offset_of.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/span_of.rs
+
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/lib.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/raw_field.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/offset_of.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memoffset-0.8.0/src/span_of.rs:

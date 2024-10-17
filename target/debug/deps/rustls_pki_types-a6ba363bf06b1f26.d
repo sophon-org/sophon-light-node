@@ -1,0 +1,10 @@
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/librustls_pki_types-a6ba363bf06b1f26.rmeta: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/base64.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/server_name.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/pem.rs
+
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/librustls_pki_types-a6ba363bf06b1f26.rlib: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/base64.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/server_name.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/pem.rs
+
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/rustls_pki_types-a6ba363bf06b1f26.d: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/base64.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/server_name.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/pem.rs
+
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/lib.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/base64.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/server_name.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pki-types-1.9.0/src/pem.rs:

@@ -1,0 +1,10 @@
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/libdusk_jubjub-fce5783fdfa8e946.rmeta: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/util.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/fr.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/elgamal.rs
+
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/libdusk_jubjub-fce5783fdfa8e946.rlib: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/util.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/fr.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/elgamal.rs
+
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/dusk_jubjub-fce5783fdfa8e946.d: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/util.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/fr.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/elgamal.rs
+
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/lib.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/util.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/fr.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dusk-jubjub-0.12.1/src/elgamal.rs:

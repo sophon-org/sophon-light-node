@@ -1,0 +1,9 @@
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/libsp_staking-2859f8b298265f95.rmeta: /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/lib.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/offence.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/currency_to_vote.rs
+
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/libsp_staking-2859f8b298265f95.rlib: /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/lib.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/offence.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/currency_to_vote.rs
+
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/sp_staking-2859f8b298265f95.d: /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/lib.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/offence.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/currency_to_vote.rs
+
+/Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/lib.rs:
+/Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/offence.rs:
+/Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/fc206fa/substrate/primitives/staking/src/currency_to_vote.rs:

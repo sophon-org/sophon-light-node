@@ -1,0 +1,10 @@
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/libsecp256k1_sys-abb261d5abcd2a34.rmeta: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/macros.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/types.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/recovery.rs
+
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/libsecp256k1_sys-abb261d5abcd2a34.rlib: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/macros.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/types.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/recovery.rs
+
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/secp256k1_sys-abb261d5abcd2a34.d: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/macros.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/types.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/recovery.rs
+
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/lib.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/macros.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/types.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/secp256k1-sys-0.9.2/src/recovery.rs:

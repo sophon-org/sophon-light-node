@@ -1,0 +1,9 @@
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/libjsonrpsee_client_transport-e448d808c29a1268.rmeta: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/ws/mod.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/ws/stream.rs
+
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/libjsonrpsee_client_transport-e448d808c29a1268.rlib: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/ws/mod.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/ws/stream.rs
+
+/Users/fedealconada/Development/sophon/avail-monitor/avail-lc/target/release/deps/jsonrpsee_client_transport-e448d808c29a1268.d: /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/lib.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/ws/mod.rs /Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/ws/stream.rs
+
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/lib.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/ws/mod.rs:
+/Users/fedealconada/.cargo/registry/src/index.crates.io-6f17d22bba15001f/jsonrpsee-client-transport-0.22.5/src/ws/stream.rs:

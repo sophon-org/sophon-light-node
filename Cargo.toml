@@ -1,0 +1,11 @@
+[package]
+name = "sophon-light-node"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+avail-rust = { git = "https://github.com/availproject/avail.git", rev = "4f0439f" }
+
+[[bin]]
+name = "generate_node_id"
+path = "main.rs"

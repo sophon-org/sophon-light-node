@@ -1,0 +1,9 @@
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/libsp_weights-c71fcc2f0890b705.rmeta: /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/lib.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/weight_meter.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/weight_v2.rs
+
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/libsp_weights-c71fcc2f0890b705.rlib: /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/lib.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/weight_meter.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/weight_v2.rs
+
+/Users/fedealconada/Development/sophon/sophon-light-node/target/debug/deps/sp_weights-c71fcc2f0890b705.d: /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/lib.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/weight_meter.rs /Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/weight_v2.rs
+
+/Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/lib.rs:
+/Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/weight_meter.rs:
+/Users/fedealconada/.cargo/git/checkouts/polkadot-sdk-204ebc47e33eb5e2/f5587b3/substrate/primitives/weights/src/weight_v2.rs:
