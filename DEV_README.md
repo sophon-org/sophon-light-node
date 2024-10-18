@@ -1,7 +1,7 @@
 
-### Avail Light Client
+# Avail Light Client
 
-### Documentation
+## Documentation
 
 This repo contains a Docker image that:
 - runs an Avail Light client
@@ -9,12 +9,12 @@ This repo contains a Docker image that:
 
 This docker image is currently deployed on [Docker Hub: @sophonhub/sophon-light-node](https://hub.docker.com/repository/docker/sophonhub/sophon-light-node/general)
 
-#### Development
-- The light client is ran using the `availup.sh` script which has been modified from the original ([availup.sh](https://github.com/availproject/availup/blob/main/availup.sh)) to:
+### Development
+- The light client is ran using the `sophonup.sh` script which has been modified from the original ([sophonup.sh](https://github.com/availproject/availup/blob/main/sophonup.sh)) to:
   - exposes API end WS externally (0.0.0.0).
   - register itself on Sophon's monitor by making an endpoint call
 
-#### Registration
+### Registration
 Nodes need to be registered on Avail's monitor so we can track a node's activity to be able to reward node runners accordingly. 
 
 The registration happens automatically when using this Docker image and is done through an endpoint call to `POST /nodes` which receives:
@@ -40,16 +40,16 @@ docker run --env-file .env sophon-light-node
 **Running directly**
 Note that `--wallet` is only required if you want to participate on the rewards programme. If set, you must also set `--public-domain` and `--monitor-url`  
 ```bash
-./availup.sh --wallet YOUR_DELEGATED_WALLET --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
+./sophonup.sh --wallet YOUR_DELEGATED_WALLET --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
 ```
 
-### Format
+## Format
 
 ```bash
 cargo fmt
 ```
 
-### Running
+## Running
 
 1. **Build the project**:
     ```bash
@@ -59,10 +59,10 @@ cargo fmt
 2. **Run the script**:
 
     ```bash
-    ./target/release/generate_node_id "YOUR SEED PHRASE"
+    ./sophonup.sh --wallet YOUR_DELEGATE_WALLET ./identity --monitor-url SOPHON_MONITOR_URL --public-domain YOUR_PUBLIC_DOMAIN
     ```
 
-### Update image
+## Update image
 To update image on DockerHub:
 ```bash
 $ docker build --platform linux/amd64 -t sophon-light-node .

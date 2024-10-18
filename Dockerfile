@@ -12,7 +12,7 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /app
 
-COPY ./availup.sh .
+COPY ./sophonup.sh .
 COPY ./register_lc.sh .
 
 COPY ./Cargo.toml .
@@ -28,35 +28,35 @@ ENV PORT=7007
 # build rust script
 RUN cargo build --release
 
-RUN chmod +x availup.sh
+RUN chmod +x sophonup.sh
 RUN chmod +x register_lc.sh
 
 CMD ["sh", "-c", "if [ -z \"$NETWORK\" ]; then \
                     if [ -z \"$APP_ID\" ]; then \
                         if [ -z \"$DELEGATED_WALLET\" ]; then \
-                            ./availup.sh --identity $IDENTITY; \
+                            ./sophonup.sh --identity $IDENTITY; \
                         else \
-                            ./availup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
                         fi; \
                     else \
                         if [ -z \"$DELEGATED_WALLET\" ]; then \
-                            ./availup.sh --identity $IDENTITY --app_id $APP_ID; \
+                            ./sophonup.sh --identity $IDENTITY --app_id $APP_ID; \
                         else \
-                            ./availup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
                         fi; \
                     fi; \
                 else \
                     if [ -z \"$APP_ID\" ]; then \
                         if [ -z \"$DELEGATED_WALLET\" ]; then \
-                            ./availup.sh --identity $IDENTITY --network $NETWORK; \
+                            ./sophonup.sh --identity $IDENTITY --network $NETWORK; \
                         else \
-                            ./availup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
                         fi; \
                     else \
                         if [ -z \"$DELEGATED_WALLET\" ]; then \
-                            ./availup.sh --identity $IDENTITY --network $NETWORK --app_id $APP_ID; \
+                            ./sophonup.sh --identity $IDENTITY --network $NETWORK --app_id $APP_ID; \
                         else \
-                            ./availup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
                         fi; \
                     fi; \
                 fi"]
