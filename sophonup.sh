@@ -1,7 +1,7 @@
 #!/bin/bash
-# forked from https://github.com/availproject/availup/blob/main/availup.sh
+# forked from https://github.com/availproject/availup/blob/main/sophonup.sh
 #!/usr/bin/env bash
-echo "🆙 Starting Availup..."
+echo "🆙 Starting Sophonup..."
 
 while [ $# -gt 0 ]; do
     if [[ $1 == "--"* ]]; then
@@ -26,7 +26,7 @@ fi
 # check if bash is current terminal shell, else check for zsh
 if [ -z "$BASH_VERSION" ]; then
     if [ -z "$ZSH_VERSION" ]; then
-        echo "🚫 Unable to locate a shell. Availup might not work as intended!" >&2
+        echo "🚫 Unable to locate a shell. Sophonup might not work as intended!" >&2
     else
         CURRENT_TERM="zsh"
     fi
@@ -353,6 +353,6 @@ else
     mv avail-light-$ARCH_STRING $AVAIL_BIN
     rm avail-light-$ARCH_STRING.tar.gz
 fi
-echo "✅ Availup exited successfully."
+echo "✅ Sophonup exited successfully."
 echo "🧱 Starting Avail."
 run_binary

@@ -8,6 +8,9 @@ Use our Railway template to spin up an Sophon Light Node:
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/wEhaxi?referralCode=qB-i6S)
 
+## Reliability
+It is important you set up some monitoring to ensure you client is always up and running. Even though we will have some tolerance to failures and downtimes, our rewards programme will calculate rewards based on uptime. 
+
 ## Environment variables
 If you're using Railway, all variables are pre-populated for you except for your **delegated wallet address**. 
 
@@ -22,7 +25,7 @@ PUBLIC_DOMAIN= # this is public domain URL where the node is running
 
 If you want to run the node directly, you must call it this way:
 ```bash
-./availup.sh --wallet YOUR_DELEGATED_WALLET --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
+./sophonup.sh --wallet YOUR_DELEGATED_WALLET --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
 ```
 
 ## FAQ
