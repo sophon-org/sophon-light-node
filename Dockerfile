@@ -36,13 +36,21 @@ CMD ["sh", "-c", "if [ -z \"$NETWORK\" ]; then \
                         if [ -z \"$DELEGATED_WALLET\" ]; then \
                             ./sophonup.sh --identity $IDENTITY; \
                         else \
-                            ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            if [ -z \"$MONITOR_URL\" ]; then \
+                                ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --public-domain $PUBLIC_DOMAIN; \
+                            else \
+                                ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            fi; \
                         fi; \
                     else \
                         if [ -z \"$DELEGATED_WALLET\" ]; then \
                             ./sophonup.sh --identity $IDENTITY --app_id $APP_ID; \
                         else \
-                            ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            if [ -z \"$MONITOR_URL\" ]; then \
+                                ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --app_id $APP_ID --public-domain $PUBLIC_DOMAIN; \
+                            else \
+                                ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            fi; \
                         fi; \
                     fi; \
                 else \
@@ -50,13 +58,21 @@ CMD ["sh", "-c", "if [ -z \"$NETWORK\" ]; then \
                         if [ -z \"$DELEGATED_WALLET\" ]; then \
                             ./sophonup.sh --identity $IDENTITY --network $NETWORK; \
                         else \
-                            ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            if [ -z \"$MONITOR_URL\" ]; then \
+                                ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --public-domain $PUBLIC_DOMAIN; \
+                            else \
+                                ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            fi; \
                         fi; \
                     else \
                         if [ -z \"$DELEGATED_WALLET\" ]; then \
                             ./sophonup.sh --identity $IDENTITY --network $NETWORK --app_id $APP_ID; \
                         else \
-                            ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            if [ -z \"$MONITOR_URL\" ]; then \
+                                ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --app_id $APP_ID --public-domain $PUBLIC_DOMAIN; \
+                            else \
+                                ./sophonup.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                            fi; \
                         fi; \
                     fi; \
                 fi"]

@@ -8,8 +8,25 @@ Use our Railway template to spin up an Sophon Light Node:
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/wEhaxi?referralCode=qB-i6S)
 
+Alternatively, you can use our Docker image:
+
+```
+# pull docker image
+docker pull --platform linux/amd64 sophonhub/sophon-light-node
+
+# run node
+docker run -d --name sophon-light-node sophonhub/sophon-light-node
+
+# if you want to be eligible for rewards
+docker run -d --name sophon-light-node \
+    -e DELEGATED_WALLET=YOUR_DELEGATED_WALLET \
+    -e PUBLIC_DOMAIN=YOUR_NODE_PUBLIC_URL \
+    sophonhub/sophon-light-node
+```
+
 ## Reliability
 It is important you set up some monitoring to ensure your node is always up and running. Even though we will have some tolerance to failures and downtimes, our rewards programme will calculate rewards based on uptime. 
+
 
 ## Environment variables
 If you're using Railway, all variables are pre-populated for you except for your **delegated wallet address**. 
@@ -18,7 +35,6 @@ While this is not required to run a node, bear in mind that if you want to parti
 
 If decide not to use Railway, you can use our Docker image making sure to set the following environment variables:
 ```
-MONITOR_URL=stg-sophon-node-monitor.up.railway.app # TODO: add mainnet URL
 DELEGATED_WALLET= # your delegated wallet address
 PUBLIC_DOMAIN= # this is the public domain URL where the node is running
 ```
@@ -47,6 +63,14 @@ curl -X PUT "/nodes" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer SIGNED_MESSAGE" \
 -d '{ "id": "NODE_ID", "delegateAddress": "DELEGATE_ADDRESS", "url": "NEW_URL", "timestamp": TIMESTAMP}'
+```
+
+### I want to delete my node
+```
+curl -X DELETE "/nodes" \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer SIGNED_MESSAGE" \
+-d '{ "id": "NODE_ID", "delegateAddress": "DELEGATE_ADDRESS", "timestamp": TIMESTAMP}'
 ```
 
 *This call requires you to sign a message so we can verify you are the owner of the delegated address.*

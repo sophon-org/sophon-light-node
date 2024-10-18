@@ -215,8 +215,7 @@ run_binary() {
 
     # check if --wallet argument is passed
     if [ ! -z "$wallet" ]; then
-        DELEGATED_WALLET="$wallet"
-        echo "💼 Wallet address provided: $DELEGATED_WALLET"
+        echo "💼 Wallet address provided: $wallet"
     fi
 
     if [ -z "$APPID" ]; then
@@ -238,15 +237,15 @@ run_binary() {
     done
     
     # run register_lc.sh script after the avail-light binary starts
-    # if DELEGATED_WALLET is set, register the node on sophon-monitor
-    if [ -z "$DELEGATED_WALLET" ]; then
+    # if wallet is set, register the node on sophon-monitor
+    if [ -z "$wallet" ]; then
         echo "🚫" >&2
         echo "🚫  [NOT ELIGIBLE FOR REWARDS] You have not provided an operator wallet. Your Sophon light node will be run but not participate in the rewards program." >&2
         echo "🚫" >&2
     else
         if [ -f ./register_lc.sh ]; then
             echo "✏️  Registering node on sophon-monitor..."
-            ./register_lc.sh --wallet "$DELEGATED_WALLET" --identity "$IDENTITY" --public-domain "$public_domain" --monitor-url "$monitor_url"
+            ./register_lc.sh --wallet "$wallet" --identity "$IDENTITY" --public-domain "$public_domain" --monitor-url "$monitor_url"
 
             if [ $? -ne 0 ]; then
                 echo "🚫  Registration failed. Stopping avail-light and exiting..." >&2
