@@ -24,7 +24,7 @@ if [ -n "$wallet" ]; then
     # if --monitor-url is not provided, exit with error
     if [ -z "$monitor_url" ]; then
         # use default monitor URL
-        monitor_url=htpps://stg-sophon-node-monitor.up.railway.app
+        monitor_url=https://stg-sophon-node-monitor.up.railway.app
     fi
     echo "🌎 Monitor URL is $monitor_url"
 
