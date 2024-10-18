@@ -9,24 +9,25 @@ Use our Railway template to spin up an Sophon Light Node:
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/wEhaxi?referralCode=qB-i6S)
 
 ## Reliability
-It is important you set up some monitoring to ensure you client is always up and running. Even though we will have some tolerance to failures and downtimes, our rewards programme will calculate rewards based on uptime. 
+It is important you set up some monitoring to ensure your node is always up and running. Even though we will have some tolerance to failures and downtimes, our rewards programme will calculate rewards based on uptime. 
 
 ## Environment variables
 If you're using Railway, all variables are pre-populated for you except for your **delegated wallet address**. 
 
-While this is not required, bear in mind that if you want to participate in Sophon's reward programme, you MUST set this with a valid delegated wallet. *If you either do not pass any wallet or you pass a wallet that is NOT delegated, the node will run but you won't be eligible for rewards.*
+While this is not required to run a node, bear in mind that if you want to participate in Sophon's reward programme, you MUST set this with a valid delegated wallet. *If you either do not pass any wallet or you pass a wallet that is NOT delegated, the node will run but you won't be eligible for rewards.*
 
-If you're using Docker and you want your node to be registered (to participat in the rewards programme) you must set the following environment variables
+If decide not to use Railway, you can use our Docker image making sure to set the following environment variables:
 ```
 MONITOR_URL=stg-sophon-node-monitor.up.railway.app # TODO: add mainnet URL
 DELEGATED_WALLET= # your delegated wallet address
-PUBLIC_DOMAIN= # this is public domain URL where the node is running
+PUBLIC_DOMAIN= # this is the public domain URL where the node is running
 ```
 
 If you want to run the node directly, you must call it this way:
 ```bash
 ./sophonup.sh --wallet YOUR_DELEGATED_WALLET --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
 ```
+*If running it directly, make sure you register your node on Sophon's monitor (more details on [Development Docs](DEV_README.md))*
 
 ## FAQ
 
