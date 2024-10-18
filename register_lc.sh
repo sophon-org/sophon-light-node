@@ -23,9 +23,10 @@ if [ -n "$wallet" ]; then
     
     # if --monitor-url is not provided, exit with error
     if [ -z "$monitor_url" ]; then
-        echo "🚫 ERROR: \`--monitor-url\` argument is missing" >&2
-        exit 1
+        # use default monitor URL
+        monitor_url=htpps://stg-sophon-node-monitor.up.railway.app
     fi
+    echo "🌎 Monitor URL is $monitor_url"
 
 fi
 
