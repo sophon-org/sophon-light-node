@@ -67,6 +67,10 @@ curl -X DELETE "/nodes" \
 -H "Authorization: Bearer SIGNED_MESSAGE" \
 -d '{ "id": "NODE_ID", "delegateAddress": "DELEGATE_ADDRESS", "timestamp": TIMESTAMP}'
 ```
+### I want to retrieve all my nodes
+curl -X GET "/nodes?delegateAddress=DELEGATE_ADDRESS&timestamp=TIMESTAMP" \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer SIGNED_MESSAGE"
 
 *This call requires you to sign a message so we can verify you are the owner of the delegated address.*
 
