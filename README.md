@@ -75,6 +75,6 @@ curl -X GET "/nodes?delegateAddress=DELEGATE_ADDRESS&timestamp=TIMESTAMP" \
 *This call requires you to sign a message so we can verify you are the owner of the delegated address.*
 
 ### How do I sign the message?
-The signed message is a UNIX timestamp (in milliseconds format) signed with your delegated wallet. Signatures expire after 15 minutes.
+The signed message is a UNIX timestamp (in seconds format) signed with your delegated wallet. Signatures expire after 15 minutes.
 
 You can use [Etherscan](https://etherscan.io/verifiedSignatures#) to sign messages.

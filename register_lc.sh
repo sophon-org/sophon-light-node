@@ -71,6 +71,17 @@ echo "| 🌐 Public domain: $public_domain"
 echo "| 👛 Delegate address: $wallet"
 echo "+$(printf '%*s' "100" | tr ' ' '-')+"
 
+# wait for node to be up
+HEALTH_ENDPOINT="$public_domain/v2/status"
+
+# wait until API is ready and that the /status response contains the "available" property
+echo "🏥 Pinging node's health endpoint at: $HEALTH_ENDPOINT until it responds"
+until response=$(curl -s "$HEALTH_ENDPOINT") && echo "$response" | grep -q '"available":'; do
+    echo "🕓 Waiting for node to be up (this can take ~1 min)"
+    sleep 5
+done
+echo "✅ Node is up!"
+
 # wait for the monitor service to be up
 HEALTH_ENDPOINT="$monitor_url/health"
 
@@ -85,15 +96,6 @@ echo "✅ Monitor service is up!"
 # call register endpoint with JSON payload
 MONITOR_URL="$monitor_url/nodes"
 echo "🚀 Registering node..."
-
-# wait for node to be up
-HEALTH_ENDPOINT="$public_domain/v2/nodes"
-
-echo "🏥 Pinging node's health endpoint at: $HEALTH_ENDPOINT until it responds"
-until curl -s "$HEALTH_ENDPOINT" > /dev/null; do
-    echo "🕓 Waiting for node to be up..."
-    sleep 2
-done
 
 RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$MONITOR_URL" \
      -H "Content-Type: application/json" \
