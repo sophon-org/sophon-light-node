@@ -1,4 +1,6 @@
-FROM ubuntu:latest
+FROM ubuntu:latest AS builder
+
+WORKDIR /app
 
 # install required packages
 RUN apt-get update \
@@ -10,23 +12,36 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-WORKDIR /app
-
-COPY ./sophonup.sh .
-COPY ./register_lc.sh .
-
 COPY ./Cargo.toml .
 COPY ./main.rs .
 
-# volume for identity.yaml
-VOLUME ["/app/identity"]
-ENV IDENTITY="/app/identity/identity.toml"
 
 # set default port
 ENV PORT=7007
 
 # build rust script
 RUN cargo build --release
+
+FROM ubuntu:latest AS runner
+
+RUN apt-get update \
+    && apt-get install -y curl sed jq \
+    && rm -rf /var/lib/apt/lists/* && apt-get purge -y --auto-remove
+WORKDIR /app
+
+# volume for identity.yaml
+VOLUME ["/app/identity"]
+ENV IDENTITY="/app/identity/identity.toml"
+
+
+
+COPY --from=builder /app/target/release/generate_node_id .
+
+
+
+COPY ./sophonup.sh .
+COPY ./register_lc.sh .
+
 
 RUN chmod +x sophonup.sh
 RUN chmod +x register_lc.sh

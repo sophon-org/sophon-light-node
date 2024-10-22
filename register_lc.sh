@@ -51,7 +51,7 @@ else
 fi
 
 # use Rust script to generate NODE_ID from avail_secret_uri
-NODE_ID=$(./target/release/generate_node_id "$AVAIL_SECRET_URI")
+NODE_ID=$(./generate_node_id "$AVAIL_SECRET_URI")
 
 if [ $? -ne 0 ] || [ -z "$NODE_ID" ]; then
     echo "🚫 ERROR: Failed to generate node ID" >&2
