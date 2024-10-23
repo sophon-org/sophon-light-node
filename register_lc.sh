@@ -120,15 +120,15 @@ if [ "$HTTP_STATUS" -eq 200 ]; then
     echo "✅ Node registered successfully!"
 elif [ "$HTTP_STATUS" -eq 400 ]; then
     if [[ "$RESPONSE_BODY" == *"node ID already exists."* ]]; then
-        echo "🚫  Node ID already exists. Make sure that you are the one that has registered it. Skipping registration..." >&2
+        echo "🔔  Node ID already exists. Make sure that you are the one that has registered it. Skipping registration..." >&2
     else
         echo "🚫 ERROR: Bad request. $RESPONSE_BODY" >&2
         exit 1
     fi
 elif [ "$HTTP_STATUS" -eq 403 ]; then
-    echo "🚫" >&2
-    echo "🚫  [NOT ELIGIBLE FOR REWARDS] The operator wallet you provided doesn’t have any delegated guardian memberships. It will run but not participate in the rewards program. You can still get delegations and later join the reward program." >&2
-    echo "🚫" >&2
+    echo "🔔" >&2
+    echo "🔔  [NOT ELIGIBLE FOR REWARDS] The operator wallet you provided doesn’t have any delegated guardian memberships. It will run but not participate in the rewards program. You can still get delegations and later join the reward program." >&2
+    echo "🔔" >&2
 elif [ "$HTTP_STATUS" -eq 500 ]; then
     echo "🚫 ERROR: Server error occurred. $RESPONSE_BODY." >&2
     exit 1
