@@ -10,7 +10,7 @@ This repo contains a Docker image that:
 This docker image is currently deployed on [Docker Hub: @sophonhub/sophon-light-node](https://hub.docker.com/repository/docker/sophonhub/sophon-light-node/general)
 
 ### Development
-- The light client is ran using the `sophonup.sh` script which has been modified from the original ([sophonup.sh](https://github.com/availproject/availup/blob/main/sophonup.sh)) to:
+- The light client is ran using the `sophonup.sh` script which has been modified from the original ([sophonup.sh](https://github.com/availproject/availup/blob/main/availup.sh)) to:
   - exposes API end WS externally (0.0.0.0).
   - register itself on Sophon's monitor by making an endpoint call
 

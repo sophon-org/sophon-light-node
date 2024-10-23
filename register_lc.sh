@@ -51,7 +51,12 @@ else
 fi
 
 # use Rust script to generate NODE_ID from avail_secret_uri
-NODE_ID=$(./target/release/generate_node_id "$AVAIL_SECRET_URI")
+if [ -f "./generate_node_id" ]; then
+    GENERATE_NODE_ID="./generate_node_id"
+else
+    GENERATE_NODE_ID="./target/release/generate_node_id"
+fi
+NODE_ID=$($GENERATE_NODE_ID "$AVAIL_SECRET_URI")
 
 if [ $? -ne 0 ] || [ -z "$NODE_ID" ]; then
     echo "🚫 ERROR: Failed to generate node ID" >&2
@@ -71,6 +76,11 @@ echo "| 🌐 Public domain: $public_domain"
 echo "| 👛 Delegate address: $wallet"
 echo "+$(printf '%*s' "100" | tr ' ' '-')+"
 
+# ensure public_domain starts with https:// if it doesn't contain http or https
+if [[ ! "$public_domain" =~ ^http ]]; then
+    public_domain="https://$public_domain"
+fi
+
 # wait for node to be up
 HEALTH_ENDPOINT="$public_domain/v2/status"
 
@@ -78,8 +88,10 @@ HEALTH_ENDPOINT="$public_domain/v2/status"
 echo "🏥 Pinging node's health endpoint at: $HEALTH_ENDPOINT until it responds"
 until response=$(curl -s "$HEALTH_ENDPOINT") && echo "$response" | grep -q '"available":'; do
     echo "🕓 Waiting for node to be up (this can take ~1 min)"
+    echo "🔗 Node health response: $response"
     sleep 5
 done
+echo "🔗 Node health response: $response"
 echo "✅ Node is up!"
 
 # wait for the monitor service to be up

@@ -15,8 +15,6 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 COPY ./Cargo.toml .
 COPY ./main.rs .
 
-
-
 # build rust script
 RUN cargo build --release
 
@@ -28,13 +26,14 @@ ENV PORT=7007
 RUN apt-get update \
     && apt-get install -y curl sed jq \
     && rm -rf /var/lib/apt/lists/* && apt-get purge -y --auto-remove
+
 WORKDIR /app
 
 # volume for identity.yaml
 VOLUME ["/app/identity"]
 ENV IDENTITY="/app/identity/identity.toml"
 
-COPY --from=builder /app/target/release/generate_node_id .
+COPY --from=builder /app/target/release/generate_node_id ./generate_node_id
 
 COPY ./sophonup.sh .
 COPY ./register_lc.sh .
@@ -87,4 +86,3 @@ CMD ["sh", "-c", "if [ -z \"$NETWORK\" ]; then \
                         fi; \
                     fi; \
                 fi"]
-
