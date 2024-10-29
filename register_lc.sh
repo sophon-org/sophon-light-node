@@ -23,11 +23,9 @@ if [ -n "$wallet" ]; then
     
     # if --monitor-url is not provided, exit with error
     if [ -z "$monitor_url" ]; then
-        # use default monitor URL
-        monitor_url=https://stg-sophon-node-monitor.up.railway.app
+        echo "🚫 ERROR: \`--monitor-url\` argument is missing" >&2
+        exit 1
     fi
-    echo "🌎 Monitor URL is $monitor_url"
-
 fi
 
 # check if identity file exists
@@ -94,17 +92,6 @@ done
 echo "🔗 Node health response: $response"
 echo "✅ Node is up!"
 
-# wait for the monitor service to be up
-HEALTH_ENDPOINT="$monitor_url/health"
-
-echo "🏥 Pinging health endpoint at: $HEALTH_ENDPOINT until it responds"
-until curl -s "$HEALTH_ENDPOINT" > /dev/null; do
-    echo "🕓 Waiting for monitor service to be up..."
-    sleep 2
-done
-
-echo "✅ Monitor service is up!"
-
 # call register endpoint with JSON payload
 MONITOR_URL="$monitor_url/nodes"
 echo "🚀 Registering node..."
@@ -120,7 +107,7 @@ if [ "$HTTP_STATUS" -eq 200 ]; then
     echo "✅ Node registered successfully!"
 elif [ "$HTTP_STATUS" -eq 400 ]; then
     if [[ "$RESPONSE_BODY" == *"node ID already exists."* ]]; then
-        echo "🔔  Node ID already exists. Make sure that you are the one that has registered it. Skipping registration..." >&2
+        echo "🔔 Node ID already registered. If you think this is a mistake, reach us out on our Discord channel. Skipping registration..." >&2
     else
         echo "🚫 ERROR: Bad request. $RESPONSE_BODY" >&2
         exit 1

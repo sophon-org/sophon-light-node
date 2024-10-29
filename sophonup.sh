@@ -23,6 +23,7 @@ fi
 if [ ! -d "$HOME/.avail/identity" ]; then
     mkdir $HOME/.avail/identity
 fi
+
 # check if bash is current terminal shell, else check for zsh
 if [ -z "$BASH_VERSION" ]; then
     if [ -z "$ZSH_VERSION" ]; then
@@ -55,34 +56,20 @@ else
     echo "🫣 Unable to locate a compatible shell or rc file, using POSIX default, availup might not work as intended!"
     PROFILE="/etc/profile"
 fi
-if [ -z "$network" ]; then
-    echo "🛜  No network selected. Defaulting to mainnet."
-    NETWORK="mainnet"
-else
-    NETWORK="$network"
-fi
 
 UPGRADE=0
-if [ "$NETWORK" = "mainnet" ]; then
-    echo "📌 Mainnet selected."
-elif [ "$NETWORK" = "turing" ]; then
-    echo "📌 Turing testnet selected."
-elif [ "$NETWORK" = "local" ]; then
-    echo "📌 Local testnet selected."
-fi
+CONFIG="$HOME/.avail/mainnet/config/config.yml"
 
-# TURING_CONFIG_PARAMS="bootstraps=['/dns/bootnode.1.lightclient.turing.avail.so/tcp/37000/p2p/12D3KooWBkLsNGaD3SpMaRWtAmWVuiZg1afdNSPbtJ8M8r9ArGRT']\nfull_node_ws=['wss://turing-rpc.avail.so/ws','wss://avail-turing.public.blastapi.io','wss://turing-testnet.avail-rpc.com']\nconfidence=80.0\navail_path='$HOME/.avail/$NETWORK/data'\nkad_record_ttl=43200\not_collector_endpoint='http://otel.lightclient.turing.avail.so:4317'\ngenesis_hash='d3d2f3a3495dc597434a99d7d449ebad6616db45e4e4f178f31cc6fa14378b70'\n"
-# MAINNET_CONFIG_PARAMS="bootstraps=['/dns/bootnode.1.lightclient.mainnet.avail.so/tcp/37000/p2p/12D3KooW9x9qnoXhkHAjdNFu92kMvBRSiFBMAoC5NnifgzXjsuiM']\nfull_node_ws=['wss://mainnet-rpc.avail.so/ws','wss://mainnet.avail-rpc.com','wss://avail-mainnet.public.blastapi.io']\nconfidence=80.0\navail_path='$HOME/.avail/$NETWORK/data'\nkad_record_ttl=43200\ngenesis_hash='b91746b45e0346cc2f815a520b9c6cb4d5c0902af848db0a80f85932d2e8276a'\not_collector_endpoint='http://otel.lightclient.mainnet.avail.so:4317'\n"
+get_config_value() {
+    local key="$1"
+    grep "^$key=" "$CONFIG" | sed "s/^$key=['\"]*\([^'\"]*\)['\"]*$/\1/"
+}
 
-if [ "$NETWORK" = "mainnet" ]; then
-    MAINNET_CONFIG_PARAMS="http_server_host='0.0.0.0'\n"
-    MAINNET_CONFIG_PARAMS+="bootstraps=['/dns/bootnode.1.lightclient.mainnet.avail.so/tcp/37000/p2p/12D3KooW9x9qnoXhkHAjdNFu92kMvBRSiFBMAoC5NnifgzXjsuiM']\nfull_node_ws=['wss://mainnet-rpc.avail.so/ws','wss://mainnet.avail-rpc.com','wss://avail-mainnet.public.blastapi.io']\nconfidence=80.0\navail_path='$HOME/.avail/$NETWORK/data'\nkad_record_ttl=43200\ngenesis_hash='b91746b45e0346cc2f815a520b9c6cb4d5c0902af848db0a80f85932d2e8276a'\not_collector_endpoint='http://otel.lightclient.mainnet.avail.so:4317'\n"
-    MAINNET_CONFIG_PARAMS+="block_processing_delay=50\n"
-elif [ "$NETWORK" = "turing" ]; then
-    TURING_CONFIG_PARAMS="http_server_host='0.0.0.0'\n"
-    TURING_CONFIG_PARAMS+="bootstraps=['/dns/bootnode.1.lightclient.turing.avail.so/tcp/37000/p2p/12D3KooWBkLsNGaD3SpMaRWtAmWVuiZg1afdNSPbtJ8M8r9ArGRT']\nfull_node_ws=['wss://turing-rpc.avail.so/ws','wss://avail-turing.public.blastapi.io','wss://turing-testnet.avail-rpc.com']\nconfidence=80.0\navail_path='$HOME/.avail/$NETWORK/data'\nkad_record_ttl=43200\not_collector_endpoint='http://otel.lightclient.turing.avail.so:4317'\ngenesis_hash='d3d2f3a3495dc597434a99d7d449ebad6616db45e4e4f178f31cc6fa14378b70'\n"
-    TURING_CONFIG_PARAMS+="block_processing_delay=50\n"
-fi
+NETWORK=$(get_config_value "network")
+echo "🛜 Network selected: $NETWORK"
+
+VERSION=$(get_config_value "version")
+echo "🆚 Version selected: $VERSION"
 
 AVAIL_BIN=$HOME/.avail/$NETWORK/bin/avail-light
 if [ ! -d "$HOME/.avail/$NETWORK" ]; then
@@ -98,51 +85,6 @@ if [ ! -d "$HOME/.avail/$NETWORK/config" ]; then
     mkdir $HOME/.avail/$NETWORK/config
 fi
 
-readonly MAINNET_VERSION="avail-light-client-v1.12.1"
-readonly TURING_VERSION="avail-light-client-v1.12.1"
-readonly LOCAL_VERSION="avail-light-client-v1.12.1"
-
-if [ "$NETWORK" = "mainnet" ]; then
-    VERSION=$MAINNET_VERSION
-    if [ -z "$config" ]; then
-        CONFIG="$HOME/.avail/$NETWORK/config/config.yml"
-        if [ -f "$CONFIG" ]; then
-            echo "🗑️  Wiping old config file at $CONFIG."
-            rm $CONFIG
-        else
-            echo "🤷 No configuration file set. This will be automatically generated at startup."
-        fi
-        touch $CONFIG
-        echo -e $MAINNET_CONFIG_PARAMS >>$CONFIG
-    else
-        CONFIG="$config"
-    fi
-elif [ "$NETWORK" = "turing" ]; then
-    VERSION=$TURING_VERSION
-    if [ -z "$config" ]; then
-        CONFIG="$HOME/.avail/$NETWORK/config/config.yml"
-        if [ -f "$CONFIG" ]; then
-            echo "🗑️  Wiping old config file at $CONFIG."
-            rm $CONFIG
-        else
-            echo "🤷 No configuration file set. This will be automatically generated at startup."
-        fi
-        touch $CONFIG
-        echo -e $TURING_CONFIG_PARAMS >>$CONFIG
-    else
-        CONFIG="$config"
-    fi
-elif [ "$NETWORK" = "local" ]; then
-    echo "📌 Local testnet selected."
-    VERSION=$LOCAL_VERSION
-    if [ -z "$config" ]; then
-        echo "🚫 No configuration file was provided for local testnet, exiting." >&2
-        exit 1
-    fi
-else
-    echo "🚫 Invalid network selected. Select one of the following: turing, local." >&2
-    exit 1
-fi
 if [ -z "$app_id" ]; then
     echo "📲 No app ID specified. Defaulting to light client mode."
 else
@@ -220,11 +162,9 @@ run_binary() {
 
     if [ -z "$APPID" ]; then
         $AVAIL_BIN --config $CONFIG --identity $IDENTITY &
-    # else
-    #     $AVAIL_BIN --config $CONFIG --identity $IDENTITY ${APPID:+--app-id $APPID} &
+    else
+        $AVAIL_BIN --config $CONFIG --identity $IDENTITY ${APPID:+--app-id $APPID} &
     fi
-    # $AVAIL_BIN --config $CONFIG --identity $IDENTITY ${APPID:+--app-id $APPID}
-
 
     # get PID of the avail-light binary
     AVAIL_PID=$!
@@ -264,42 +204,14 @@ run_binary() {
 
     exit $?
 }
+
 # check if avail-light binary is available and check if upgrade variable is set to 0
 if [ -f $AVAIL_BIN -a "$UPGRADE" = 0 ]; then
     echo "✅ Avail is already installed. Starting Avail..."
     trap onexit EXIT
     run_binary
 fi
-if [ "$UPGRADE" = 1 ]; then
-    echo "🔄 Resetting configuration..."
-    if [ -f $AVAIL_BIN ]; then
-        rm $AVAIL_BIN
-        if [ -f $CONFIG ]; then
-            rm $CONFIG
-            touch $CONFIG
-            if [ "$NETWORK" = "turing" ]; then
-                echo -e $TURING_CONFIG_PARAMS >>$CONFIG
-            elif [ "$NETWORK" = "mainnet" ]; then
-                echo -e $MAINNET_CONFIG_PARAMS >>$CONFIG
-            elif [ "$NETWORK" = "local" ]; then
-                echo -e $LOCAL_CONFIG_PARAMS >>$CONFIG
-            else
-                echo "Unknown network: $NETWORK"
-            fi
-            if [ -d "$HOME/.avail/$NETWORK/data" ]; then
-                rm -rf $HOME/.avail/$NETWORK/data
-                mkdir $HOME/.avail/$NETWORK/data
-            fi
-        fi
-    else
-        echo "🤔 Avail was not installed with availup. Attemping to uninstall with cargo..."
-        cargo uninstall avail-light || echo "👀 Avail was not installed with cargo, upgrade might not be required!"
-        if command -v avail-light >/dev/null 2>&1; then
-            echo "🚫 Avail was not uninstalled. Please uninstall manually and try again."
-            exit 1
-        fi
-    fi
-fi
+
 if [ "$(uname -m)" = "arm64" -a "$(uname -s)" = "Darwin" ]; then
     ARCH_STRING="apple-arm64"
 elif [ "$(uname -m)" = "x86_64" -a "$(uname -s)" = "Darwin" ]; then
