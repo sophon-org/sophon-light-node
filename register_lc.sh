@@ -10,24 +10,6 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -n "$wallet" ]; then
-    if ! [[ "$wallet" =~ ^0x[a-fA-F0-9]{40}$ ]]; then
-        echo "🚫 ERROR: $wallet is not a valid EVM address" >&2
-        exit 1
-    fi
-    # if --public-domain is not provided, exit with error
-    if [ -z "$public_domain" ]; then
-        echo "🚫 ERROR: \`--public-domain\` argument is missing" >&2
-        exit 1
-    fi
-    
-    # if --monitor-url is not provided, exit with error
-    if [ -z "$monitor_url" ]; then
-        echo "🚫 ERROR: \`--monitor-url\` argument is missing" >&2
-        exit 1
-    fi
-fi
-
 # check if identity file exists
 echo "🔍 Looking for identity file at $identity..."
 if [ -f "$identity" ]; then
@@ -101,7 +83,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$MONITOR_URL" \
      -d "$JSON_PAYLOAD")
 HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
 RESPONSE_BODY=$(echo "$RESPONSE" | sed '$d')
-echo "Response: $RESPONSE_BODY"
+echo "☎️  Response: $RESPONSE_BODY"
 
 if [ "$HTTP_STATUS" -eq 200 ]; then
     echo "✅ Node registered successfully!"
@@ -121,10 +103,6 @@ elif [ "$HTTP_STATUS" -eq 500 ]; then
     exit 1
 else
     echo "🚫 ERROR: Unexpected HTTP status code: $HTTP_STATUS" >&2
-    echo "Response: $RESPONSE_BODY"
+    echo "☎️  Response: $RESPONSE_BODY"
     exit 1
 fi
-
-exec "$@"
-
-

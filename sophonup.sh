@@ -1,7 +1,7 @@
 #!/bin/bash
 # forked from https://github.com/availproject/availup/blob/main/sophonup.sh
 #!/usr/bin/env bash
-echo "🆙 Starting Sophonup..."
+echo "🆙 Running SophonUp..."
 
 while [ $# -gt 0 ]; do
     if [[ $1 == "--"* ]]; then
@@ -58,16 +58,15 @@ else
 fi
 
 UPGRADE=0
-CONFIG="$HOME/.avail/mainnet/config/config.yml"
 
+# set config file path
+CONFIG="$HOME/.avail/$network/config/config.yml"
+
+# get version from the config file
 get_config_value() {
     local key="$1"
     grep "^$key=" "$CONFIG" | sed "s/^$key=['\"]*\([^'\"]*\)['\"]*$/\1/"
 }
-
-NETWORK=$(get_config_value "network")
-echo "🛜 Network selected: $NETWORK"
-
 VERSION=$(get_config_value "version")
 echo "🆚 Version selected: $VERSION"
 
@@ -98,8 +97,10 @@ if [ -z "$identity" ]; then
         echo "🤷 No identity set. This will be automatically generated at startup."
     fi
 else
+    echo "🔑 Identity set to $identity."
     IDENTITY="$identity"
 fi
+
 # handle WSL systems
 if uname -r | grep -qEi "(Microsoft|WSL)"; then
     # force remove IO lock
@@ -109,6 +110,7 @@ if uname -r | grep -qEi "(Microsoft|WSL)"; then
     fi
     if [ "$force_wsl" != 'y' -a "$force_wsl" != 'yes' ]; then
         echo "👀 WSL detected. This script is not fully compatible with WSL. Please download the Windows runner instead by clicking this link: https://github.com/availproject/avail-light/releases/download/$VERSION/avail-light-windows-runner.zip Alternatively, rerun the command with --force_wsl y"
+        kill -SIGUSR1 "$PPID"
         exit 1
     else
         echo "👀 WSL detected. The binary is not fully compatible with WSL but forcing the run anyway."
@@ -149,6 +151,7 @@ onexit() {
         fi
         echo -e "📌 Avail has been added to your profile. Run the following command to load it in the current session:\n. $PROFILE\n"
     fi
+    # kill -SIGUSR1 "$PPID"
     exit 0
 }
 
@@ -186,15 +189,17 @@ run_binary() {
         if [ -f ./register_lc.sh ]; then
             echo "✏️  Registering node on sophon-monitor..."
             ./register_lc.sh --wallet "$wallet" --identity "$IDENTITY" --public-domain "$public_domain" --monitor-url "$monitor_url"
+            REGISTER_EXIT_CODE=$?
 
-            if [ $? -ne 0 ]; then
-                echo "🚫  Registration failed. Stopping avail-light and exiting..." >&2
-                kill $AVAIL_PID
+            if [ $REGISTER_EXIT_CODE -ne 0 ]; then
+                echo "🚫 Registration failed with exit code $REGISTER_EXIT_CODE. Stopping avail-light and exiting."
+                kill -SIGUSR1 "$PPID"
                 exit 1
             fi
         else
             echo "🚫 register_lc.sh script not found! Stopping avail-light and exiting..." >&2
             kill $AVAIL_PID
+            kill -SIGUSR1 "$PPID"
             exit 1
         fi
     fi
@@ -256,6 +261,7 @@ else
         wget -qO- https://github.com/availproject/avail-light/releases/download/$VERSION/avail-light-$ARCH_STRING.tar.gz
     else
         echo "🚫 Neither curl nor wget are available. Please install one of these and try again."
+        kill -SIGUSR1 "$PPID"
         exit 1
     fi
     # use tar to extract the downloaded file and move it to .avail/bin/ directory

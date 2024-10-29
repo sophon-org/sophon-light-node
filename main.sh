@@ -1,5 +1,33 @@
 #!/bin/bash
 
+# function to handle the signal
+handle_sophonup_error() {
+    echo "❌ Received error signal from sophonup.sh. Exiting main process"
+    exit 1
+}
+
+# set up trap to catch SIGUSR1 and call the handler
+trap 'handle_sophonup_error' SIGUSR1
+
+start_sophonup() {
+    # if wallet is provided, public_domain and monitor_url must be set
+    if [ -n "$wallet" ]; then
+        if [ -z "$public_domain" ]; then
+            echo "🚫 ERROR: '--public-domain' is required when '--wallet' is specified."
+            kill -SIGUSR1 "$$"
+            exit 1
+        fi
+        if [ -z "$monitor_url" ]; then
+            echo "🚫 ERROR: '--monitor-url' is required when '--wallet' is specified."
+            kill -SIGUSR1 "$$"
+            exit 1
+        fi
+    fi
+    
+    ./sophonup.sh --wallet "$wallet" --identity ./identity --public-domain "$public_domain" --monitor-url "$monitor_url" --network "$network" &
+}
+
+# parse arguments
 while [ $# -gt 0 ]; do
     if [[ $1 == "--"* ]]; then
         v="${1/--/}"
@@ -10,16 +38,23 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-# get public domain from the environment
+# ensure monitor_url is set
 if [ -z "$monitor_url" ]; then
-    echo "❌ ERROR: public_domain is not set"
+    echo "❌ ERROR: monitor_url is not set"
     exit 1
 fi
 
-# MONITOR_URL="https://stg-sophon-node-monitor.up.railway.app"
+# set default network if not provided
+if [ -z "$network" ]; then
+    echo "🛜 No network selected. Defaulting to mainnet."
+    network="mainnet"
+else
+    echo "🛜 Network selected: $network"
+fi
+
 HEALTH_ENDPOINT="$monitor_url/health"
-CONFIG_ENDPOINT="$monitor_url/configs"
-LOCAL_CONFIG_FILE="$HOME/.avail/mainnet/config/config.yml"
+CONFIG_ENDPOINT="$monitor_url/configs?network=$network"
+LOCAL_CONFIG_FILE="$HOME/.avail/$network/config/config.yml"
 
 while true; do
     # wait for the monitor service to be up
@@ -59,12 +94,9 @@ while true; do
     # if there's no config, this is the first time running the node so save the config and start node
     if [ ! -f "$LOCAL_CONFIG_FILE" ]; then
         echo "✍️  No local configuration found. Saving fetched configuration..."
-        # if the local config file doesn't exist, create it
         mkdir -p "$(dirname "$LOCAL_CONFIG_FILE")"
         echo "$LATEST_CONFIG" > "$LOCAL_CONFIG_FILE"
-
-        # start light client
-        ./sophonup.sh --wallet $wallet --identity ./identity --public-domain $public_domain --monitor-url $monitor_url &
+        start_sophonup
     else
         AVAIL_PID=$(pgrep -x "avail-light")
         
@@ -83,21 +115,18 @@ while true; do
 
             # update local config with the latest version
             echo "$LATEST_CONFIG" > "$LOCAL_CONFIG_FILE"
-
-            # start light client
-            ./sophonup.sh --wallet $wallet --identity ./identity --public-domain $public_domain --monitor-url $monitor_url &
+            
+            start_sophonup
         else
             echo "🚜 No configuration changes detected. Process will continue running."
             if ! ps -p $AVAIL_PID > /dev/null 2>&1; then
-                echo "🚨 Process is not running. Starting Sophonup process..."
-
-                # start the light client process
-                ./sophonup.sh --wallet $wallet --identity ./identity --public-domain $public_domain --monitor-url $monitor_url &
+                echo "🚨 Process is not running."
+                start_sophonup
             fi
         fi
     fi
 
-    # wait for 1 day (86400 seconds)
-    # sleep 86400 
-    sleep 60 
+    # wait for 7 days 
+    # sleep 604800 
+    sleep 60
 done
