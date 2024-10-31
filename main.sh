@@ -43,7 +43,7 @@ fi
 if [ -z "$monitor_url" ]; then
     # use default monitor URL
     # monitor_url=https://monitor.sophon.xyz
-    monitor_url=https://stg-sophon-node-monitor.up.railway.app
+    monitor_url=https://monitor-stg.sophon.xyz
     echo "🚨 WARNING: '--monitor-url' is not set. Defaulting to $monitor_url"
 fi
 
