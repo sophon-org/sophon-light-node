@@ -70,18 +70,18 @@ get_config_value() {
 VERSION=$(get_config_value "version")
 echo "🆚 Version selected: $VERSION"
 
-AVAIL_BIN=$HOME/.avail/$NETWORK/bin/avail-light
-if [ ! -d "$HOME/.avail/$NETWORK" ]; then
-    mkdir $HOME/.avail/$NETWORK
+AVAIL_BIN=$HOME/.avail/$network/bin/avail-light
+if [ ! -d "$HOME/.avail/$network" ]; then
+    mkdir $HOME/.avail/$network
 fi
-if [ ! -d "$HOME/.avail/$NETWORK/bin" ]; then
-    mkdir $HOME/.avail/$NETWORK/bin
+if [ ! -d "$HOME/.avail/$network/bin" ]; then
+    mkdir $HOME/.avail/$network/bin
 fi
-if [ ! -d "$HOME/.avail/$NETWORK/data" ]; then
-    mkdir $HOME/.avail/$NETWORK/data
+if [ ! -d "$HOME/.avail/$network/data" ]; then
+    mkdir $HOME/.avail/$network/data
 fi
-if [ ! -d "$HOME/.avail/$NETWORK/config" ]; then
-    mkdir $HOME/.avail/$NETWORK/config
+if [ ! -d "$HOME/.avail/$network/config" ]; then
+    mkdir $HOME/.avail/$network/config
 fi
 
 if [ -z "$app_id" ]; then
@@ -89,24 +89,34 @@ if [ -z "$app_id" ]; then
 else
     APPID="$app_id"
 fi
+
+# if identity path is not provided, default to $HOME/.avail/identity/identity.toml
 if [ -z "$identity" ]; then
-    IDENTITY=$HOME/.avail/identity/identity.toml
-    if [ -f "$IDENTITY" ]; then
-        echo "🔑 Identity found at $IDENTITY."
-    else
-        echo "🤷 No identity set. This will be automatically generated at startup."
-    fi
+    IDENTITY="$HOME/.avail/identity/identity.toml"
 else
-    echo "🔑 Identity set to $identity."
-    IDENTITY="$identity"
+    # check if $identity is a file or directory
+    if [ -f "$identity" ]; then
+        # if it's a file, use it directly
+        IDENTITY="$identity"
+    else
+        # if it's a directory, append identity.toml to the path
+        IDENTITY="$identity/identity.toml"
+    fi
+fi
+
+# check if the identity file exists at the resolved path
+if [ -f "$IDENTITY" ]; then
+    echo "🔑 Identity found at $IDENTITY."
+else
+    echo "🤷 No identity set. This will be automatically generated at startup."
 fi
 
 # handle WSL systems
 if uname -r | grep -qEi "(Microsoft|WSL)"; then
     # force remove IO lock
-    if [ -d "$HOME/.avail/$NETWORK/data" ]; then
-        rm -rf $HOME/.avail/$NETWORK/data
-        mkdir $HOME/.avail/$NETWORK/data
+    if [ -d "$HOME/.avail/$network/data" ]; then
+        rm -rf $HOME/.avail/$network/data
+        mkdir $HOME/.avail/$network/data
     fi
     if [ "$force_wsl" != 'y' -a "$force_wsl" != 'yes' ]; then
         echo "👀 WSL detected. This script is not fully compatible with WSL. Please download the Windows runner instead by clicking this link: https://github.com/availproject/avail-light/releases/download/$VERSION/avail-light-windows-runner.zip Alternatively, rerun the command with --force_wsl y"
@@ -123,7 +133,7 @@ fi
 if [ "$upgrade" = "n" ] || [ "$upgrade" = "N" ]; then
     echo "🔄 Checking for updates..."
     if [ -f $AVAIL_BIN ]; then
-        CURRENT_VERSION="$($HOME/.avail/$NETWORK/bin/avail-light --version | awk '{print $1"-v"$2}')"
+        CURRENT_VERSION="$($HOME/.avail/$network/bin/avail-light --version | awk '{print $1"-v"$2}')"
         if [ "$CURRENT_VERSION" != "$VERSION" ]; then
             echo "⬆️  Avail binary is out of date. Your current version is $CURRENT_VERSION, but the latest is $VERSION."
             read -p "Do you want to upgrade to the latest version? (y/n): " upgrade_response
@@ -145,9 +155,9 @@ fi
 onexit() {
     chmod 600 $IDENTITY
     echo "🔄 Avail stopped. Future instances of the light client can be started by invoking the avail-light binary or rerunning this script$EXTRAPROMPT"
-    if [[ ":$PATH:" != *":$HOME/.avail/$NETWORK/bin:"* ]]; then
-        if ! grep -q "export PATH=\"\$PATH:$HOME/.avail/$NETWORK/bin\"" "$PROFILE"; then
-            echo -e "export PATH=\"\$PATH:$HOME/.avail/$NETWORK/bin\"\n" >>$PROFILE
+    if [[ ":$PATH:" != *":$HOME/.avail/$network/bin:"* ]]; then
+        if ! grep -q "export PATH=\"\$PATH:$HOME/.avail/$network/bin\"" "$PROFILE"; then
+            echo -e "export PATH=\"\$PATH:$HOME/.avail/$network/bin\"\n" >>$PROFILE
         fi
         echo -e "📌 Avail has been added to your profile. Run the following command to load it in the current session:\n. $PROFILE\n"
     fi

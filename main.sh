@@ -23,7 +23,6 @@ start_sophonup() {
             exit 1
         fi
     fi
-    
     ./sophonup.sh --wallet "$wallet" --identity ./identity --public-domain "$public_domain" --monitor-url "$monitor_url" --network "$network" &
 }
 
@@ -67,10 +66,20 @@ while true; do
 
     # fetch latest config from Sophon's monitor
     echo "📩 Fetching latest configuration from $CONFIG_ENDPOINT"
-    CONFIG_RESPONSE=$(curl -s "$CONFIG_ENDPOINT")
+    CONFIG_RESPONSE=$(curl -s -w "\n%{http_code}" "$CONFIG_ENDPOINT")
+    HTTP_STATUS=$(echo "$CONFIG_RESPONSE" | tail -n1)
+    RESPONSE_BODY=$(echo "$CONFIG_RESPONSE" | sed '$d')
+
+    # check HTTP status
+    if [ "$HTTP_STATUS" -ne 200 ]; then
+        echo "❌ Couldn't fetch config [$HTTP_STATUS]: $RESPONSE_BODY. Exiting."
+        exit 1
+    else
+        echo "📋 Configuration response: $RESPONSE_BODY"
+    fi
 
     # Use jq to transform JSON into the desired format
-    LATEST_CONFIG=$(echo "$CONFIG_RESPONSE" | jq -r '
+    LATEST_CONFIG=$(echo "$RESPONSE_BODY" | jq -r '
         to_entries[]
         | select(.key != "_id")  # Exclude the _id field
         | "\(.key)=" +
