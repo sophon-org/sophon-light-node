@@ -17,11 +17,6 @@ start_sophonup() {
             kill -SIGUSR1 "$$"
             exit 1
         fi
-        if [ -z "$monitor_url" ]; then
-            # use default monitor URL
-            # monitor_url=https://monitor.sophon.xyz
-            monitor_url=https://stg-sophon-node-monitor.up.railway.app
-        fi
     fi
     ./sophonup.sh --wallet "$wallet" --identity ./identity --public-domain "$public_domain" --monitor-url "$monitor_url" --network "$network" &
 }
@@ -43,6 +38,13 @@ if [ -z "$network" ]; then
     network="mainnet"
 else
     echo "🛜 Network selected: $network"
+fi
+
+if [ -z "$monitor_url" ]; then
+    # use default monitor URL
+    # monitor_url=https://monitor.sophon.xyz
+    monitor_url=https://stg-sophon-node-monitor.up.railway.app
+    echo "🚨 WARNING: '--monitor-url' is not set. Defaulting to $monitor_url"
 fi
 
 HEALTH_ENDPOINT="$monitor_url/health"
