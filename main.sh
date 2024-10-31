@@ -37,12 +37,6 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-# ensure monitor_url is set
-if [ -z "$monitor_url" ]; then
-    echo "❌ ERROR: monitor_url is not set"
-    exit 1
-fi
-
 # set default network if not provided
 if [ -z "$network" ]; then
     echo "🛜 No network selected. Defaulting to mainnet."
