@@ -193,7 +193,7 @@ run_binary() {
     # if wallet is set, register the node on sophon-monitor
     if [ -z "$wallet" ]; then
         echo "🚫" >&2
-        echo "🚫  [NOT ELIGIBLE FOR REWARDS] You have not provided an operator wallet. Your Sophon light node will be run but not participate in the rewards program." >&2
+        echo "🚫  [NOT ELIGIBLE FOR REWARDS] You have not provided an operator wallet. Your Sophon light node will run but not participate in the rewards program." >&2
         echo "🚫" >&2
     else
         if [ -f ./register_lc.sh ]; then
