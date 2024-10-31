@@ -19,7 +19,8 @@ start_sophonup() {
         fi
         if [ -z "$monitor_url" ]; then
             # use default monitor URL
-            monitor_url=https://monitor.sophon.xyz
+            # monitor_url=https://monitor.sophon.xyz
+            monitor_url=https://stg-sophon-node-monitor.up.railway.app
         fi
     fi
     ./sophonup.sh --wallet "$wallet" --identity ./identity --public-domain "$public_domain" --monitor-url "$monitor_url" --network "$network" &
