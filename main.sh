@@ -135,7 +135,10 @@ while true; do
         fi
     fi
 
-    # wait for 7 days 
-    # sleep 604800 
-    sleep 60
+    # if VESION_CHECKER_INTERVAL env var is not set, default to 7 days
+    if [ -z "$VERSION_CHECKER_INTERVAL" ]; then
+        VERSION_CHECKER_INTERVAL=604800
+    fi
+    echo "🕒 Sleeping for $VERSION_CHECKER_INTERVAL seconds"
+    sleep "$VERSION_CHECKER_INTERVAL"
 done

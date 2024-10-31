@@ -86,7 +86,7 @@ RESPONSE_BODY=$(echo "$RESPONSE" | sed '$d')
 echo "☎️  Response: $RESPONSE_BODY"
 
 if [ "$HTTP_STATUS" -eq 200 ]; then
-    echo "✅ Node registered successfully!"
+    echo "✅ Node registered/sync'd successfully!"
 elif [ "$HTTP_STATUS" -eq 400 ]; then
     if [[ "$RESPONSE_BODY" == *"node ID already exists."* ]]; then
         echo "🔔 Node ID already registered. If you think this is a mistake, reach us out on our Discord channel. Skipping registration..." >&2
