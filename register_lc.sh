@@ -10,26 +10,6 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -n "$wallet" ]; then
-    if ! [[ "$wallet" =~ ^0x[a-fA-F0-9]{40}$ ]]; then
-        echo "🚫 ERROR: $wallet is not a valid EVM address" >&2
-        exit 1
-    fi
-    # if --public-domain is not provided, exit with error
-    if [ -z "$public_domain" ]; then
-        echo "🚫 ERROR: \`--public-domain\` argument is missing" >&2
-        exit 1
-    fi
-    
-    # if --monitor-url is not provided, exit with error
-    if [ -z "$monitor_url" ]; then
-        # use default monitor URL
-        monitor_url=https://stg-sophon-node-monitor.up.railway.app
-    fi
-    echo "🌎 Monitor URL is $monitor_url"
-
-fi
-
 # check if identity file exists
 echo "🔍 Looking for identity file at $identity..."
 if [ -f "$identity" ]; then
@@ -94,17 +74,6 @@ done
 echo "🔗 Node health response: $response"
 echo "✅ Node is up!"
 
-# wait for the monitor service to be up
-HEALTH_ENDPOINT="$monitor_url/health"
-
-echo "🏥 Pinging health endpoint at: $HEALTH_ENDPOINT until it responds"
-until curl -s "$HEALTH_ENDPOINT" > /dev/null; do
-    echo "🕓 Waiting for monitor service to be up..."
-    sleep 2
-done
-
-echo "✅ Monitor service is up!"
-
 # call register endpoint with JSON payload
 MONITOR_URL="$monitor_url/nodes"
 echo "🚀 Registering node..."
@@ -114,13 +83,13 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$MONITOR_URL" \
      -d "$JSON_PAYLOAD")
 HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
 RESPONSE_BODY=$(echo "$RESPONSE" | sed '$d')
-echo "Response: $RESPONSE_BODY"
+echo "☎️  Response: $RESPONSE_BODY"
 
 if [ "$HTTP_STATUS" -eq 200 ]; then
     echo "✅ Node registered successfully!"
 elif [ "$HTTP_STATUS" -eq 400 ]; then
     if [[ "$RESPONSE_BODY" == *"node ID already exists."* ]]; then
-        echo "🔔  Node ID already exists. Make sure that you are the one that has registered it. Skipping registration..." >&2
+        echo "🔔 Node ID already registered. If you think this is a mistake, reach us out on our Discord channel. Skipping registration..." >&2
     else
         echo "🚫 ERROR: Bad request. $RESPONSE_BODY" >&2
         exit 1
@@ -134,10 +103,6 @@ elif [ "$HTTP_STATUS" -eq 500 ]; then
     exit 1
 else
     echo "🚫 ERROR: Unexpected HTTP status code: $HTTP_STATUS" >&2
-    echo "Response: $RESPONSE_BODY"
+    echo "☎️  Response: $RESPONSE_BODY"
     exit 1
 fi
-
-exec "$@"
-
-
