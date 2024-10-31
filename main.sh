@@ -18,9 +18,8 @@ start_sophonup() {
             exit 1
         fi
         if [ -z "$monitor_url" ]; then
-            echo "🚫 ERROR: '--monitor-url' is required when '--wallet' is specified."
-            kill -SIGUSR1 "$$"
-            exit 1
+            # use default monitor URL
+            monitor_url=https://monitor.sophon.xyz
         fi
     fi
     ./sophonup.sh --wallet "$wallet" --identity ./identity --public-domain "$public_domain" --monitor-url "$monitor_url" --network "$network" &

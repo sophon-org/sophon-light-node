@@ -75,10 +75,10 @@ echo "🔗 Node health response: $response"
 echo "✅ Node is up!"
 
 # call register endpoint with JSON payload
-MONITOR_URL="$monitor_url/nodes"
+ADD_NODE_ENDPOINT="$monitor_url/nodes"
 echo "🚀 Registering node..."
 
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$MONITOR_URL" \
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$ADD_NODE_ENDPOINT" \
      -H "Content-Type: application/json" \
      -d "$JSON_PAYLOAD")
 HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
