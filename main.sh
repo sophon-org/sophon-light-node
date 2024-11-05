@@ -74,8 +74,8 @@ while true; do
         echo "📋 Configuration response: $RESPONSE_BODY"
     fi
 
-    # Use jq to transform JSON into the desired format
-    LATEST_CONFIG=$(echo "$RESPONSE_BODY" | jq -r '
+    # if PORT is set, add http_server_port to the config
+    CONFIG_TRANSFORM='
         to_entries[]
         | select(.key != "_id")  # Exclude the _id field
         | "\(.key)=" +
@@ -86,7 +86,18 @@ while true; do
         else
             .value | tostring
         end)
-    ')
+    '
+
+    # if PORT is set, add http_server_port to the config
+    if [ -n "$PORT" ]; then
+        echo "🔌 PORT variable found: $PORT. Will configure http_server_port."
+        # remove any existing http_server_port line if present and add new one
+        LATEST_CONFIG=$(echo "$RESPONSE_BODY" | jq -r "$CONFIG_TRANSFORM" | grep -v "^http_server_port=")
+        LATEST_CONFIG="${LATEST_CONFIG}"$'\n'"http_server_port=$PORT"
+    else
+        echo "⚠️  No PORT variable set. The node will use the default port from the config."
+        LATEST_CONFIG=$(echo "$RESPONSE_BODY" | jq -r "$CONFIG_TRANSFORM")
+    fi
 
     # replace $HOME with its actual value
     LATEST_CONFIG=$(echo "$LATEST_CONFIG" | sed "s|\$HOME|$HOME|g")

@@ -20,9 +20,6 @@ RUN cargo build --release
 
 FROM ubuntu:latest AS runner
 
-# set default port
-ENV PORT=7007
-
 RUN apt-get update \
     && apt-get install -y curl sed jq \
     && rm -rf /var/lib/apt/lists/* && apt-get purge -y --auto-remove
@@ -44,45 +41,45 @@ RUN chmod +x register_lc.sh
 
 CMD ["sh", "-c", "if [ -z \"$NETWORK\" ]; then \
                     if [ -z \"$APP_ID\" ]; then \
-                        if [ -z \"$DELEGATED_WALLET\" ]; then \
+                        if [ -z \"$OPERATOR_ADDRESS\" ]; then \
                             ./main.sh --identity $IDENTITY; \
                         else \
                             if [ -z \"$MONITOR_URL\" ]; then \
-                                ./main.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --public-domain $PUBLIC_DOMAIN; \
+                                ./main.sh --identity $IDENTITY --wallet $OPERATOR_ADDRESS --public-domain $PUBLIC_DOMAIN; \
                             else \
-                                ./main.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                                ./main.sh --identity $IDENTITY --wallet $OPERATOR_ADDRESS --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
                             fi; \
                         fi; \
                     else \
-                        if [ -z \"$DELEGATED_WALLET\" ]; then \
+                        if [ -z \"$OPERATOR_ADDRESS\" ]; then \
                             ./main.sh --identity $IDENTITY --app_id $APP_ID; \
                         else \
                             if [ -z \"$MONITOR_URL\" ]; then \
-                                ./main.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --app_id $APP_ID --public-domain $PUBLIC_DOMAIN; \
+                                ./main.sh --identity $IDENTITY --wallet $OPERATOR_ADDRESS --app_id $APP_ID --public-domain $PUBLIC_DOMAIN; \
                             else \
-                                ./main.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                                ./main.sh --identity $IDENTITY --wallet $OPERATOR_ADDRESS --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
                             fi; \
                         fi; \
                     fi; \
                 else \
                     if [ -z \"$APP_ID\" ]; then \
-                        if [ -z \"$DELEGATED_WALLET\" ]; then \
+                        if [ -z \"$OPERATOR_ADDRESS\" ]; then \
                             ./main.sh --identity $IDENTITY --network $NETWORK; \
                         else \
                             if [ -z \"$MONITOR_URL\" ]; then \
-                                ./main.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --public-domain $PUBLIC_DOMAIN; \
+                                ./main.sh --identity $IDENTITY --wallet $OPERATOR_ADDRESS --network $NETWORK --public-domain $PUBLIC_DOMAIN; \
                             else \
-                                ./main.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                                ./main.sh --identity $IDENTITY --wallet $OPERATOR_ADDRESS --network $NETWORK --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
                             fi; \
                         fi; \
                     else \
-                        if [ -z \"$DELEGATED_WALLET\" ]; then \
+                        if [ -z \"$OPERATOR_ADDRESS\" ]; then \
                             ./main.sh --identity $IDENTITY --network $NETWORK --app_id $APP_ID; \
                         else \
                             if [ -z \"$MONITOR_URL\" ]; then \
-                                ./main.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --app_id $APP_ID --public-domain $PUBLIC_DOMAIN; \
+                                ./main.sh --identity $IDENTITY --wallet $OPERATOR_ADDRESS --network $NETWORK --app_id $APP_ID --public-domain $PUBLIC_DOMAIN; \
                             else \
-                                ./main.sh --identity $IDENTITY --wallet $DELEGATED_WALLET --network $NETWORK --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
+                                ./main.sh --identity $IDENTITY --wallet $OPERATOR_ADDRESS --network $NETWORK --app_id $APP_ID --monitor-url $MONITOR_URL --public-domain $PUBLIC_DOMAIN; \
                             fi; \
                         fi; \
                     fi; \

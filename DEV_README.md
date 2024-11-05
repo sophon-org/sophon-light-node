@@ -20,7 +20,7 @@ Nodes need to be registered on Avail's monitor so we can track a node's activity
 The registration happens automatically when using this Docker image and is done through an endpoint call to `POST /nodes` which receives:
 - node ID address (automatically generated)
 - domain URL: it reads the `PUBLIC_DOMAIN` env. If using the Railway template, this is automatically populated with `RAILWAY_SERVICE_URL` environment variable that is injected on deployments). *If you want to use other infra than Railway you need to define `PUBLIC_DOMAIN` manually with your domain URL*
-- **delegated wallet address** this is a required address you need to pass so we establish the link between the node running and who's running it
+- **operator address** this is a required address you need to pass so we establish the link between the node running and who's running it
   
 ## Running a node
 
