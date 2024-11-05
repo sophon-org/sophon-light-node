@@ -18,7 +18,7 @@ start_sophonup() {
             exit 1
         fi
     fi
-    ./sophonup.sh --wallet "$wallet" --identity ./identity --public-domain "$public_domain" --monitor-url "$monitor_url" --network "$network" &
+    NETWORK=$network ./sophonup.sh --wallet "$wallet" --identity ./identity --public-domain "$public_domain" --monitor-url "$monitor_url" &
 }
 
 # parse arguments
