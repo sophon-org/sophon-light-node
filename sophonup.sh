@@ -58,7 +58,9 @@ else
 fi
 
 UPGRADE=0
-if [ "$NETWORK" = "mainnet" ]; then
+if [ "$NETWORK" = "sophon" ]; then
+    echo "📌 Sophon selected."
+elif [ "$NETWORK" = "mainnet" ]; then
     echo "📌 Mainnet selected."
 elif [ "$NETWORK" = "turing" ]; then
     echo "📌 Turing testnet selected."
