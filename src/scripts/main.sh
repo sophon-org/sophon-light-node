@@ -48,7 +48,7 @@ if [ -z "$monitor_url" ]; then
 fi
 
 HEALTH_ENDPOINT="$monitor_url/health"
-CONFIG_ENDPOINT="$monitor_url/configs?network=$network"
+CONFIG_ENDPOINT="$monitor_url/config?network=$network"
 LOCAL_CONFIG_FILE="$HOME/.avail/$network/config/config.yml"
 
 while true; do

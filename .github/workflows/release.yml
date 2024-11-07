@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*' # will trigger on version tags like v1.0.0
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Build
+      run: cargo build --release
+
+    - name: Create Release Directory
+      run: |
+        mkdir -p release
+        cp target/release/sophon-node release/
+        cp target/release/generate_node_id release/
+
+    - name: Create Archive
+      run: |
+        cd release
+        tar -czf ../sophon-light-node-${{ github.ref_name }}.tar.gz *
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          sophon-light-node-${{ github.ref_name }}.tar.gz
+          release/sophon-node
+          release/generate_node_id
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -7,5 +7,9 @@ edition = "2021"
 avail-rust = { git = "https://github.com/availproject/avail.git", rev = "4f0439f" }
 
 [[bin]]
+name = "sophon-node"
+path = "src/main.rs"
+
+[[bin]]
 name = "generate_node_id"
-path = "main.rs"
+path = "src/utils/main.rs"
