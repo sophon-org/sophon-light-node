@@ -6,8 +6,74 @@ handle_sophonup_error() {
     exit 1
 }
 
+# function to get latest release info from a version endpoint
+get_latest_version() {
+    local version_endpoint="$1"
+    local response
+    local http_status
+    
+    response=$(curl -s -w "\n%{http_code}" "$version_endpoint")
+    http_status=$(echo "$response" | tail -n1)
+    response_body=$(echo "$response" | sed '$d')
+    
+    if [ "$http_status" -ne 200 ]; then
+        echo "❌ Failed to fetch latest version: $response_body" >&2
+        return 1
+    fi
+    
+    echo "$response_body"
+}
+
+# function to compare version strings
+version_gt() {
+    test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1";
+}
+
+# check for updates Sophon updates
+check_for_updates() {
+    local version_endpoint="$monitor_url/version"
+    local current_version
+    local latest_version
+    
+    # Get current version from environment variable instead of file
+    current_version="${APP_VERSION:-0.0.0}"
+    
+    echo "🔍 Checking for updates..."
+    
+    # Get latest version information
+    version_info=$(get_latest_version "$version_endpoint")
+    if [ $? -ne 0 ]; then
+        echo "⚠️ Failed to check for updates. Will retry later."
+        return 1
+    fi
+    
+    # Parse version information
+    latest_version=$(echo "$version_info" | jq -r '.version')
+    latest_image=$(echo "$version_info" | jq -r '.image')
+    
+    if [ -z "$latest_version" ] || [ -z "$latest_image" ]; then
+        echo "⚠️ Invalid version information received"
+        return 1
+    fi
+    
+    echo "📊 Current version: $current_version"
+    echo "📊 Latest version: $latest_version"
+    
+    # Compare versions
+    if version_gt "$latest_version" "$current_version"; then
+        echo "🆕 New version available!"
+        exit 42
+    else
+        echo "✅ Running latest version"
+        return 0
+    fi
+}
+
 # set up trap to catch SIGUSR1 and call the handler
 trap 'handle_sophonup_error' SIGUSR1
+
+# Enable auto-update by default
+AUTO_UPDATE="${AUTO_UPDATE:-true}"
 
 start_sophonup() {
     # if wallet is provided, public_domain and monitor_url must be set
@@ -41,14 +107,12 @@ else
 fi
 
 if [ -z "$monitor_url" ]; then
-    # use default monitor URL
-    # monitor_url=https://monitor.sophon.xyz
     monitor_url=https://monitor-stg.sophon.xyz
     echo "🚨 WARNING: '--monitor-url' is not set. Defaulting to $monitor_url"
 fi
 
 HEALTH_ENDPOINT="$monitor_url/health"
-CONFIG_ENDPOINT="$monitor_url/configs?network=$network"
+CONFIG_ENDPOINT="$monitor_url/config?network=$network"
 LOCAL_CONFIG_FILE="$HOME/.avail/$network/config/config.yml"
 
 while true; do
@@ -142,7 +206,16 @@ while true; do
         fi
     fi
 
-    # if VESION_CHECKER_INTERVAL env var is not set, default to 7 days
+    # Check for updates if auto-update is enabled
+    if [ "$AUTO_UPDATE" = "true" ]; then
+        check_for_updates
+        # If update was successful, the script will exit with code 42
+        if [ $? -eq 42 ]; then
+            exit 0
+        fi
+    fi
+
+    # if VERSION_CHECKER_INTERVAL env var is not set, default to 7 days
     if [ -z "$VERSION_CHECKER_INTERVAL" ]; then
         VERSION_CHECKER_INTERVAL=604800
     fi
