@@ -35,7 +35,7 @@ done
 # set default network if not provided
 if [ -z "$network" ]; then
     echo "🛜 No network selected. Defaulting to mainnet."
-    network="mainnet"
+    network="sophon"
 else
     echo "🛜 Network selected: $network"
 fi

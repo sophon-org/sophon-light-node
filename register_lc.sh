@@ -66,11 +66,14 @@ HEALTH_ENDPOINT="$public_domain/v2/status"
 
 # wait until API is ready and that the /status response contains the "available" property
 echo "🏥 Pinging node's health endpoint at: $HEALTH_ENDPOINT until it responds"
-until response=$(curl -s "$HEALTH_ENDPOINT") && echo "$response" | grep -q '"available":'; do
-    echo "🕓 Waiting for node to be up (this can take ~1 min)"
+until response=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_ENDPOINT"); do
+    if [ "$response" != "200" ]; then
+        echo "🕓 Waiting for node to be up (this can take ~1 min)"
+    fi
     echo "🔗 Node health response: $response"
     sleep 5
 done
+echo "🏥 Pinging node's health endpoint at: $HEALTH_ENDPOINT until it responds"
 echo "🔗 Node health response: $response"
 echo "✅ Node is up!"
 
