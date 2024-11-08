@@ -64,15 +64,19 @@ fi
 # wait for node to be up
 HEALTH_ENDPOINT="$public_domain/v2/status"
 
-# wait until API is ready and that the /status response contains the "available" property
 echo "🏥 Pinging node's health endpoint at: $HEALTH_ENDPOINT until it responds"
-until response=$(curl -s "$HEALTH_ENDPOINT") && echo "$response" | grep -q '"available":'; do
-    echo "🕓 Waiting for node to be up (this can take ~1 min)"
-    echo "🔗 Node health response: $response"
+until status_code=$(curl -s -w "%{http_code}" -o /tmp/health_response "$HEALTH_ENDPOINT") && \
+      [ "$status_code" = "200" ] && \
+      response=$(cat /tmp/health_response) && \
+      first_block=$(echo "$response" | jq -r '.blocks.available.first') && \
+      [ "$first_block" != "null" ]; do
+    echo "🕓 Waiting for node to be up and have a first available block (this can take ~1 min)"
+    if [ ! -z "$response" ]; then
+        echo "🔗 Node health response: $response"
+    fi
     sleep 5
 done
-echo "🔗 Node health response: $response"
-echo "✅ Node is up!"
+echo "✅ Node is up! First available block: $first_block"
 
 # call register endpoint with JSON payload
 ADD_NODE_ENDPOINT="$monitor_url/nodes"
