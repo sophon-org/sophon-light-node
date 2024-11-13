@@ -38,6 +38,8 @@ docker run -d --name sophon-light-node sophonhub/sophon-light-node
 # if you want to be eligible for rewards you must pass the required env vars
 docker run -d --name sophon-light-node \
     -e OPERATOR_ADDRESS=<You operator wallet address> \
+    -e DESTINATION_ADDRESS=<The destination wallet address> \
+    -e PERCENTAGE=<The percentage from the total rewards to be sent to the DESTINATION_ADDRESS. Must be from 0.00 to 100. Only 2 decimals allowed.> \
     -e PUBLIC_DOMAIN=<Your public URL/IP> \
     sophonhub/sophon-light-node
 ```
@@ -53,6 +55,8 @@ If you're using Railway, all variables are pre-populated for you except for your
 If decide not to use Railway, you can use our Docker image making sure to set the following environment variables:
 ```
 OPERATOR_ADDRESS= # your Light Node operator address, which is the one that must receive delegations to be eligible to receive rewards. The more delegations, the more rewards, with a cap limit of 20 delegations.
+DESTINATION_ADDRESS= # this is the wallet address that will receive a percentage of your rewards. Most likely, this is your delegator's address.
+PERCENTAGE= # this defines the percentage of the total rewards that will be sent to DESTINATION_ADDRESS. It must be a decimal from 0.00 to 100. Only 2 decimals allowed.
 PUBLIC_DOMAIN= # this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers
 ```
 
@@ -68,16 +72,12 @@ By using the Railway template (or the Docker image), we automatically register y
 curl -X PUT "https://monitor.sophon.xyz/nodes" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer SIGNED_MESSAGE" \
--d '{ "id": "NODE_ID", "operatorAddress": "OPERATOR_ADDRESS", "url": "NEW_URL", "timestamp": TIMESTAMP}'
+-d '{ "operator": "OPERATOR_ADDRESS", "url": "NEW_URL", "timestamp": TIMESTAMP}'
 ```
 
 ### I want to delete my node
-```
-curl -X DELETE "https://monitor.sophon.xyz/nodes" \
--H "Content-Type: application/json" \
--H "Authorization: Bearer SIGNED_MESSAGE" \
--d '{ "id": "NODE_ID", "operatorAddress": "OPERATOR_ADDRESS", "timestamp": TIMESTAMP}'
-```
+Registered nodes can not be deleted.
+
 ### I want to retrieve all my nodes
 ```
 curl -X GET "https://monitor.sophon.xyz/nodes?operatorAddress=OPERATOR_ADDRESS&timestamp=TIMESTAMP" \
