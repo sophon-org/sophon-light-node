@@ -29,8 +29,7 @@ jobs:
       - name: Tag Docker Image
         run: |
           docker tag sophon-light-node sophonhub/sophon-light-node:latest
-    
-    # Temporarily disabling
-    #   - name: Push Docker Image
-    #     run: |
-    #       docker push sophonhub/sophon-light-node:latest
+
+      - name: Push Docker Image
+        run: |
+          docker push sophonhub/sophon-light-node:latest
