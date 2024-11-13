@@ -179,8 +179,10 @@ check_version() {
                 return 1
             fi
         else
-            log "⚠️  You are running version $current_version. Latest version is $latest_version"
-            log "⚠️  Consider upgrading or use --auto-upgrade yes to enable automatic updates. If you're using the Docker image, you can set `AUTO_UPGRADE=yes` in your environment."
+            log "+$(printf '%*s' "100" | tr ' ' '-')+"
+            log "| ⚠️  You are running version $current_version. Latest version is $latest_version"
+            log "| ⚠️  Consider upgrading or use --auto-upgrade yes to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=yes\` in your environment."
+            log "+$(printf '%*s' "100" | tr ' ' '-')+"
             return 1
         fi
     else
