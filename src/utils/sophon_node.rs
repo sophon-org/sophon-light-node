@@ -2,7 +2,6 @@ use std::fs;
 use std::process::Command;
 
 const MAIN_SCRIPT: &str = include_str!("../light-node/main.sh");
-const SOPHONUP_SCRIPT: &str = include_str!("../light-node/sophonup.sh");
 const REGISTER_SCRIPT: &str = include_str!("../light-node/register_lc.sh");
 
 fn main() {
@@ -14,7 +13,6 @@ fn main() {
 
     // write scripts to disk
     fs::write("main.sh", MAIN_SCRIPT).expect("Failed to write main.sh");
-    fs::write("sophonup.sh", SOPHONUP_SCRIPT).expect("Failed to write sophonup.sh");
     fs::write("register_lc.sh", REGISTER_SCRIPT).expect("Failed to write register_lc.sh");
 
     // make them executable
