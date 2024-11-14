@@ -16,7 +16,7 @@ validate_requirements() {
     command -v curl >/dev/null 2>&1 || die "curl is required but not installed"
     
     [ -n "${operator:-}" ] || die "\`operator\` parameter is required"
-    [ -z "${percentage}" ] || [[ "$percentage" =~ ^[0-9]+(\.[0-9]{2})?$ ]] || die "\`percentage\` must be a decimal value with 2 decimal places"
+    [ -z "${percentage}" ] || [[ "$percentage" =~ ^[0-9]+(\.[0-9]{1,2})?$ ]] || die "\`percentage\` must be a decimal value with 2 decimal places"
     [ -n "${identity:-}" ] || die "\`identity\` parameter is required"
     [ -n "${public_domain:-}" ] || die "\`public-domain\` parameter is required"
     [ -n "${monitor_url:-}" ] || die "\`monitor-url\` parameter is required"
@@ -52,7 +52,7 @@ generate_node_id() {
     local generator_path
     local node_id
     
-    generator_path=$([ -f "./generate_node_id" ] && echo "./generate_node_id" || echo "./target/release/generate_node_id")
+    generator_path=$([ -f "./generate_node_id" ] && echo "./generate_node_id" || echo "./release/generate_node_id")
     [ -f "$generator_path" ] || die "generate_node_id binary not found"
     
     node_id=$("$generator_path" "$secret_uri") || die "Failed to generate node ID"
@@ -74,11 +74,16 @@ register_node() {
     
     http_status=$(echo "$response" | tail -n1)
     response_body=$(echo "$response" | sed '$d')
-    
+    warning_message=$(echo "$response_body" | jq -r '.warning // empty')
     
     case $http_status in
         200)
             log "☎️  Response: $response_body"
+            if [ -n "$warning_message" ]; then
+                log "⚠️"
+                log "⚠️ Warning: $warning_message"
+                log "⚠️"
+            fi
             log "✅ Node registered/sync'd successfully!"
             ;;
         400)

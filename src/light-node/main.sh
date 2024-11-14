@@ -326,13 +326,23 @@ run_node() {
         fi
     }
 
+    # Check if we need custom config
+    config_arg=""
+    if [ -n "${PORT:-}" ] && [ "$PORT" != "7007" ]; then
+        log "🔌 Configuring custom port: $PORT"
+        config_file=$(update_avail_config)
+        config_arg="--config $config_file"
+    else 
+        config_arg="--config_url $CONFIG_URL"
+    fi
+
     # Convert true/false to yes/no for upgrade parameter
     avail_upgrade_value=$([ "$auto_upgrade" = "true" ] && echo "yes" || echo "no")
 
     # Start availup in background
     curl -sL1 avail.sh | bash -s -- \
         --network "$network" \
-        --config_url "$CONFIG_URL" \
+        $config_arg \
         --upgrade $avail_upgrade_value \
         --identity "$identity" > >(while read -r line; do
             log "$line"
@@ -400,63 +410,22 @@ wait_for_monitor() {
     log "✅ Monitor service is up!"
 }
 
-check_avail_config() {
-    local config_endpoint="$monitor_url/configs?network=$network"
-    local config_file="$HOME/.avail/$network/config/config.yml"
-    local config_response
-    local http_status
-    
-    # Fetch latest config
-    log "📩 Fetching latest configuration from $config_endpoint"
-    config_response=$(curl -s -w "\n%{http_code}" "$config_endpoint")
-    http_status=$(echo "$config_response" | tail -n1)
-    
-    if [ "$http_status" -ne 200 ]; then
-        die "Failed to fetch config: $(echo "$config_response" | sed '$d')"
-    fi
-    
-    # Transform config
-    CONFIG_TRANSFORM='
-        to_entries[]
-        | select(.key != "_id")  # Exclude the _id field
-        | "\(.key)=" +
-        (if (.value | type) == "string" then
-            "\"" + .value + "\""
-        elif (.value | type) == "array" then
-            "[" + (.value | map("\"" + . + "\"") | join(",")) + "]"
-        else
-            .value | tostring
-        end)
-    '
-    
-    # if PORT is set, add http_server_port to the config
-    if [ -n "${PORT:-}" ]; then
-        log "🔌 PORT variable found: $PORT. Will configure http_server_port."
-        # remove any existing http_server_port line if present and add new one
-        LATEST_CONFIG=$(echo "$config_response" | sed '$d' | jq -r "$CONFIG_TRANSFORM" | grep -v "^http_server_port=")
-        LATEST_CONFIG="${LATEST_CONFIG}"$'\n'"http_server_port=$PORT"
-    else
-        LATEST_CONFIG=$(echo "$config_response" | sed '$d' | jq -r "$CONFIG_TRANSFORM")
-    fi
-    
-    # replace $HOME with its actual value
-    LATEST_CONFIG=$(echo "$LATEST_CONFIG" | sed "s|\$HOME|$HOME|g")
+update_avail_config() {
+    local config_dir="$HOME/.avail/$network/config"
+    local config_file="$config_dir/config.yml"
     
     # Create config directory if it doesn't exist
-    mkdir -p "$(dirname "$config_file")"
-    
-    # Check if config has changed
-    if [ -f "$config_file" ]; then
-        if ! diff <(echo "$LATEST_CONFIG") "$config_file" >/dev/null; then
-            log "🆕 Configuration has changed. Updating..."
-            echo "$LATEST_CONFIG" > "$config_file"
-        else
-            log "✅ Configuration up to date"
-        fi
-    else
-        log "📝 Creating initial configuration..."
-        echo "$LATEST_CONFIG" > "$config_file"
-    fi
+    mkdir -p "$config_dir"
+
+    # Download config file
+    curl -s "$CONFIG_URL" -o "$config_file"
+
+    # Create temp file and update port
+    temp_file=$(mktemp)
+    sed "s/http_server_port = .*/http_server_port = $PORT/" "$config_file" > "$temp_file"
+    mv "$temp_file" "$config_file"
+
+    echo "$config_file"
 }
 
 cleanup() {
