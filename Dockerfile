@@ -37,13 +37,5 @@ RUN set -x && \
     rm "${BINARY_FILE_NAME}" && \
     chmod +x sophon-node
 
-ENTRYPOINT ["/app/sophon-node"]
-
-CMD ["${OPERATOR_ADDRESS:+--operator $OPERATOR_ADDRESS}", \
-    "${DESTINATION_ADDRESS:+--destination $DESTINATION_ADDRESS}", \
-    "${PERCENTAGE:+--percentage $PERCENTAGE}", \
-    "${IDENTITY:+--identity $IDENTITY}", \
-    "${PUBLIC_DOMAIN:+--public-domain $PUBLIC_DOMAIN}", \
-    "${MONITOR_URL:+--monitor-url $MONITOR_URL}", \
-    "${NETWORK:+--network $NETWORK}", \
-    "${AUTO_UPGRADE:+--auto-upgrade $AUTO_UPGRADE}"]
+    ENTRYPOINT ["/bin/sh", "-c"]
+    CMD ["/app/sophon-node --operator \"$OPERATOR_ADDRESS\" --destination \"$DESTINATION_ADDRESS\" --percentage \"$PERCENTAGE\" --identity \"$IDENTITY\" --public-domain \"$PUBLIC_DOMAIN\" --monitor-url \"$MONITOR_URL\" --network \"$NETWORK\" --auto-upgrade \"$AUTO_UPGRADE\""]
