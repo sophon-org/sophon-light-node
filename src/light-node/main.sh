@@ -51,7 +51,7 @@ get_current_version() {
 compare_versions() {
     if [[ "$1" == "$2" ]]; then
         echo 0
-    elif [[ "$(echo -e "$v1\n$v2" | sort -V | head -n1)" == "$v1" ]]; then
+    elif [[ "$(echo -e "$1\n$2" | sort -V | head -n1)" == "$1" ]]; then
         echo -1  # v1 is lower
     else
         echo 1   # v1 is higher
@@ -124,7 +124,6 @@ update_version() {
     log "🔄 Updating binary..."
     chmod +x "$extracted_binary"
     mv "$extracted_binary" "$SCRIPT_DIR/sophon-node"
-    echo "✅ Updated binary: $SCRIPT_DIR/sophon-node"
 
     # Cleanup
     cd - > /dev/null
