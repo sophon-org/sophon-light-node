@@ -7,7 +7,7 @@ const REGISTER_SCRIPT: &str = include_str!("../light-node/register_lc.sh");
 fn main() {
     // check if --version exists
     if std::env::args().any(|arg| arg == "--version" || arg == "-v") {
-        println!("v{}", env!("CARGO_PKG_VERSION"));
+        println!("{}", env!("CARGO_PKG_VERSION"));
         std::process::exit(0);
     }
 
@@ -17,7 +17,7 @@ fn main() {
 
     // make them executable
     Command::new("chmod")
-        .args(&["+x", "main.sh", "sophonup.sh", "register_lc.sh"])
+        .args(&["+x", "main.sh", "register_lc.sh"])
         .status()
         .expect("Failed to make scripts executable");
 

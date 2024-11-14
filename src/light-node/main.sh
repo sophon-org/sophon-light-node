@@ -49,10 +49,7 @@ get_current_version() {
 }
 
 compare_versions() {
-    local v1="${1#v}"  # remove leading 'v'
-    local v2="${2#v}"
-    
-    if [[ "$v1" == "$v2" ]]; then
+    if [[ "$1" == "$2" ]]; then
         echo 0
     elif [[ "$(echo -e "$v1\n$v2" | sort -V | head -n1)" == "$v1" ]]; then
         echo -1  # v1 is lower
@@ -153,9 +150,9 @@ check_version() {
     local minimum_version
     minimum_version=$(get_minimum_version)
 
-    log "📋 Current version: $current_version"
-    log "📋 Latest version: $latest_version"
-    log "📋 Minimum required version: $minimum_version"
+    log "🔔 Current version: $current_version"
+    log "🔔 Latest version: $latest_version"
+    log "🔔 Minimum required version: $minimum_version"
 
     # If current version is 0.0.0, assume it's a new installation
     if [ "$current_version" = "0.0.0" ]; then

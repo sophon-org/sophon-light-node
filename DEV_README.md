@@ -10,9 +10,9 @@ This repo contains a Docker image that:
 This docker image is currently deployed on [Docker Hub: @sophonhub/sophon-light-node](https://hub.docker.com/repository/docker/sophonhub/sophon-light-node/general)
 
 ### Development
-- The light client is ran using the `sophonup.sh` script which has been modified from the original ([sophonup.sh](https://github.com/availproject/availup/blob/main/availup.sh)) to:
-  - exposes API end WS externally (0.0.0.0).
-  - register itself on Sophon's monitor by making an endpoint call
+- The light client entrypoint is the `main.sh` script which runs 2 scripts:
+  -  [availup.sh](https://github.com/availproject/availup/blob/main/availup.sh), which actually runs the light node and must expose both the API and WS externally (0.0.0.0) 
+  -  `register_lc.sh`, to register itself on Sophon's monitor by making an endpoint call
 
 ### Registration
 Nodes need to be registered on Avail's monitor so we can track a node's activity to be able to reward node runners accordingly. 
@@ -38,9 +38,9 @@ docker run --env-file .env sophon-light-node
 ```
 
 **Running directly**
-Note that `--wallet` is only required if you want to participate on the rewards programme. If set, you must also set `--public-domain` and `--monitor-url`  
+Note that `--operator` is only required if you want to participate on the rewards programme. If set, you must also set `--public-domain` and `--monitor-url`
 ```bash
-./sophonup.sh --wallet YOUR_DELEGATED_WALLET --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
+./main.sh --operator YOUR_OPERATOR_ADDRESS --destination DESINATION_ADDRESS --percentage 0.5 --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
 ```
 
 ## Format
@@ -59,7 +59,7 @@ cargo fmt
 2. **Run the script**:
 
     ```bash
-    ./sophonup.sh --wallet YOUR_DELEGATE_WALLET ./identity --monitor-url SOPHON_MONITOR_URL --public-domain YOUR_PUBLIC_DOMAIN
+    ./main.sh --operator YOUR_OPERATOR_ADDRESS --destination DESINATION_ADDRESS --percentage 0.5 --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
     ```
 
 ## Update image
