@@ -6,6 +6,7 @@ on:
       - main
 
 jobs:
+
   build-and-release:
     name: Build and Release
     runs-on: ubuntu-latest
@@ -36,12 +37,12 @@ jobs:
         ((VERSION_PARTS[2]++))
         NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
         
-        echo "::set-output name=previous_version::$PREVIOUS_VERSION"
-        echo "::set-output name=new_version::$NEW_VERSION"
+        echo "PREVIOUS_VERSION=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
 
     - name: Update version in Cargo.toml
       run: |
-        VERSION=${{ steps.previous_version.outputs.new_version }}
+        VERSION=${{ env.NEW_VERSION }}
         sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
 
     - name: Commit Cargo.toml update
@@ -49,12 +50,12 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "github-actions@github.com"
         git add Cargo.toml
-        git commit -m "Update Cargo.toml version to ${{ steps.previous_version.outputs.new_version }}"
+        git commit -m "Update Cargo.toml version to ${{ env.NEW_VERSION }}"
         git push
 
     - name: Create Git Tag
       run: |
-        VERSION=${{ steps.previous_version.outputs.new_version }}
+        VERSION=${{ env.NEW_VERSION }}
         git tag -a "v$VERSION" -m "Release v$VERSION"
         git push origin "v$VERSION"
 
@@ -71,7 +72,7 @@ jobs:
         
     - name: Create tarball
       run: |
-        VERSION=${{ steps.previous_version.outputs.new_version }}
+        VERSION=${{ env.NEW_VERSION }}
         mkdir -p release
         cp target/release/sophon-node release/
         cp target/release/generate_node_id release/
@@ -85,8 +86,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.previous_version.outputs.new_version }}
-        release_name: Release ${{ steps.previous_version.outputs.new_version }}
+        tag_name: ${{ env.NEW_VERSION }}
+        release_name: Release ${{ env.NEW_VERSION }}
         draft: false
         prerelease: false
         
@@ -96,6 +97,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries-${{ steps.previous_version.outputs.new_version }}.tar.gz
-        asset_name: binaries-${{ steps.previous_version.outputs.new_version }}.tar.gz
+        asset_path: ./binaries-${{ env.NEW_VERSION }}.tar.gz
+        asset_name: binaries-${{ env.NEW_VERSION }}.tar.gz
         asset_content_type: application/gzip
