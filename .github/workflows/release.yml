@@ -8,7 +8,6 @@ on:
 jobs:
 
   build-and-release:
-    name: Build and Release
     runs-on: ubuntu-latest
     
     steps:
@@ -25,8 +24,8 @@ jobs:
     - name: Get version from Cargo.toml
       id: cargo_toml
       run: |
-        version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml)
-        echo "CURRENT_VERSION=$version" >> $GITHUB_OUTPUT
+        cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version'
+        echo "CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')" >> $GITHUB_OUTPUT
 
     - name: Update version in Cargo.toml
       run: |
