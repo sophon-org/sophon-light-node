@@ -25,14 +25,12 @@ jobs:
       id: previous_version
       run: |
         # Get the latest tag
-        PREVIOUS_VERSION=$(git describe --tags --abbrev=0)
-        
-        # Extract the version number
-        VERSION=$(echo $PREVIOUS_VERSION | sed 's/v//')
+        cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version'
+        PREVIOUS_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
         
         # Increment the patch version
         IFS='.'
-        read -ra VERSION_PARTS <<< "$VERSION"
+        read -ra VERSION_PARTS <<< "$PREVIOUS_VERSION"
         ((VERSION_PARTS[2]++))
         NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
         
