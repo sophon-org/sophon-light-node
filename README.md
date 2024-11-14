@@ -55,7 +55,7 @@ If you're using Railway, all variables are pre-populated for you except for your
 If decide not to use Railway, you can use our Docker image making sure to set the following environment variables:
 ```
 OPERATOR_ADDRESS= # your Light Node operator address, which is the one that must receive delegations to be eligible to receive rewards. The more delegations, the more rewards, with a cap limit of 20 delegations.
-DESTINATION_ADDRESS= # this is the wallet address that will receive a percentage of your rewards. Most likely, this is your delegator's address.
+DESTINATION_ADDRESS= # [OPTIONAL] this is the wallet address that will receive a percentage of your rewards. Most likely, this is your delegator's address. If not passed, it defaults to the OPERATOR_ADDRESS.
 PERCENTAGE= # this defines the percentage of the total rewards that will be sent to DESTINATION_ADDRESS. It must be a decimal from 0.00 to 100. Only 2 decimals allowed.
 PUBLIC_DOMAIN= # this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers
 ```
@@ -80,7 +80,7 @@ Registered nodes can not be deleted.
 
 ### I want to retrieve all my nodes
 ```
-curl -X GET "https://monitor.sophon.xyz/nodes?operatorAddress=OPERATOR_ADDRESS&timestamp=TIMESTAMP" \
+curl -X GET "https://monitor.sophon.xyz/nodes?operator=OPERATOR_ADDRESS&timestamp=TIMESTAMP" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer SIGNED_MESSAGE"
 ```
