@@ -6,6 +6,7 @@ on:
       - main
 
 jobs:
+
   build-and-release:
     name: Build and Release
     runs-on: ubuntu-latest
@@ -21,27 +22,15 @@ jobs:
         toolchain: stable
         override: true
         
-    - name: Get previous version
-      id: previous_version
+    - name: Get version from Cargo.toml
+      id: cargo_toml
       run: |
-        # Get the latest tag
-        PREVIOUS_VERSION=$(git describe --tags --abbrev=0)
-        
-        # Extract the version number
-        VERSION=$(echo $PREVIOUS_VERSION | sed 's/v//')
-        
-        # Increment the patch version
-        IFS='.'
-        read -ra VERSION_PARTS <<< "$VERSION"
-        ((VERSION_PARTS[2]++))
-        NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
-        
-        echo "::set-output name=previous_version::$PREVIOUS_VERSION"
-        echo "::set-output name=new_version::$NEW_VERSION"
+        version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml)
+        echo "CURRENT_VERSION=$version" >> $GITHUB_OUTPUT
 
     - name: Update version in Cargo.toml
       run: |
-        VERSION=${{ steps.previous_version.outputs.new_version }}
+        VERSION=${{ env.CURRENT_VERSION }}
         sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
 
     - name: Commit Cargo.toml update
@@ -49,12 +38,12 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "github-actions@github.com"
         git add Cargo.toml
-        git commit -m "Update Cargo.toml version to ${{ steps.previous_version.outputs.new_version }}"
+        git commit -m "Update Cargo.toml version to ${{ env.CURRENT_VERSION }}"
         git push
 
     - name: Create Git Tag
       run: |
-        VERSION=${{ steps.previous_version.outputs.new_version }}
+        VERSION=${{ env.CURRENT_VERSION }}
         git tag -a "v$VERSION" -m "Release v$VERSION"
         git push origin "v$VERSION"
 
@@ -71,7 +60,7 @@ jobs:
         
     - name: Create tarball
       run: |
-        VERSION=${{ steps.previous_version.outputs.new_version }}
+        VERSION=${{ env.CURRENT_VERSION }}
         mkdir -p release
         cp target/release/sophon-node release/
         cp target/release/generate_node_id release/
@@ -85,8 +74,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.previous_version.outputs.new_version }}
-        release_name: Release ${{ steps.previous_version.outputs.new_version }}
+        tag_name: ${{ env.CURRENT_VERSION }}
+        release_name: Release ${{ env.CURRENT_VERSION }}
         draft: false
         prerelease: false
         
@@ -96,6 +85,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./binaries-${{ steps.previous_version.outputs.new_version }}.tar.gz
-        asset_name: binaries-${{ steps.previous_version.outputs.new_version }}.tar.gz
-        asset_content_type: application/gzip
+        asset_path: ./binaries-${{ en
