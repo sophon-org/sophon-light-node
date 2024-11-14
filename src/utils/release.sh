@@ -60,7 +60,7 @@ cp target/release/generate_node_id release/
 # Create tarball
 echo "Creating tarball..."
 cd release/
-tar -czf "../sophon-light-node-${VERSION}.tar.gz" *
+tar -czf "../binaries-${VERSION}.tar.gz" *
 cd ..
 
 # Check if gh command is available
@@ -77,6 +77,9 @@ gh release create "v${VERSION}" \
     --notes "" \
     --prerelease=false \
     --generate-notes=false \
-    "sophon-light-node-${VERSION}.tar.gz"
+    "binaries-${VERSION}.tar.gz"
+
+# Remove tar file
+# rm "sophon-light-node-${VERSION}.tar.gz"
 
 echo "Release v${VERSION} created successfully!"

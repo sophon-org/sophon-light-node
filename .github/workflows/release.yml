@@ -2,49 +2,86 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*' # will trigger on version tags like v1.0.0
-
-env:
-  CARGO_TERM_COLOR: always
+    branches:
+      - main
 
 jobs:
-  build:
+
+  build-and-release:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Install Rust
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
         override: true
-
-    - name: Build
-      run: cargo build --release
-
-    - name: Create Release Directory
+        
+    - name: Get previous version
+      id: previous_version
       run: |
+        # Get the latest tag
+        PREVIOUS_VERSION=$(git describe --tags --abbrev=0)
+        
+        # Extract the version number
+        VERSION=$(echo $PREVIOUS_VERSION | sed 's/v//')
+        
+        # Increment the patch version
+        IFS='.'
+        read -ra VERSION_PARTS <<< "$VERSION"
+        ((VERSION_PARTS[2]++))
+        NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
+        
+        echo "::set-output name=previous_version::$PREVIOUS_VERSION"
+        echo "::set-output name=new_version::v$NEW_VERSION"
+        
+    - name: Update version in Cargo.toml
+      run: |
+          VERSION=${{ steps.previous_version.outputs.new_version }}
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+
+    - name: Build release
+      run: |
+        cargo build --release
+        
+    - name: Check binaries
+      run: |
+        if [ ! -f "target/release/sophon-node" ] || [ ! -f "target/release/generate_node_id" ]; then
+            echo "Error: Required binaries not found in target/release/"
+            exit 1
+        fi
+        
+    - name: Create tarball
+      run: |
+        VERSION=${{ steps.previous_version.outputs.new_version }}
         mkdir -p release
         cp target/release/sophon-node release/
         cp target/release/generate_node_id release/
-
-    - name: Create Archive
-      run: |
-        cd release
-        tar -czf ../sophon-light-node-${{ github.ref_name }}.tar.gz *
-
+        cd release/
+        tar -czf "../binaries-$VERSION.tar.gz" *
+        cd ..
+        
     - name: Create Release
       id: create_release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          sophon-light-node-${{ github.ref_name }}.tar.gz
-          release/sophon-node
-          release/generate_node_id
-        draft: false
-        prerelease: false
-        generate_release_notes: true
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.previous_version.outputs.new_version }}
+        release_name: Release ${{ steps.previous_version.outputs.new_version }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries-${{ steps.previous_version.outputs.new_version }}.tar.gz
+        asset_name: binaries-${{ steps.previous_version.outputs.new_version }}.tar.gz
+        asset_content_type: application/gzip
