@@ -134,7 +134,7 @@ update_version() {
 }
 
 check_version() {
-    local auto_upgrade="${1:-no}"
+    local auto_upgrade="${1:-false}"
     log "🔍 Checking version requirements..."
     
     # Get latest version
@@ -166,7 +166,7 @@ check_version() {
     
     # Check if update is available
     if [ $(compare_versions "$current_version" "$latest_version") -lt 0 ]; then
-        if [ "$auto_upgrade" = "yes" ]; then
+        if [ "$auto_upgrade" = "true" ]; then
             log "🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version..."
             if update_version "$latest_version"; then
                 return 0  # Signal to restart
@@ -177,7 +177,7 @@ check_version() {
         else
             log "+$(printf '%*s' "100" | tr ' ' '-')+"
             log "| ⚠️  You are running version $current_version. Latest version is $latest_version"
-            log "| ⚠️  Consider upgrading or use --auto-upgrade yes to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=yes\` in your environment."
+            log "| ⚠️  Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment."
             log "+$(printf '%*s' "100" | tr ' ' '-')+"
             return 1
         fi
@@ -213,7 +213,7 @@ parse_args() {
     percentage=""
     public_domain=""
     identity="$HOME/.avail/identity/identity.toml"
-    auto_upgrade="no" 
+    auto_upgrade="false" 
     VERSION_CHECKER_INTERVAL="${VERSION_CHECKER_INTERVAL:-$DEFAULT_VERSION_CHECKER_INTERVAL}"
 
     # Parse command line arguments
@@ -329,7 +329,7 @@ run_node() {
     curl -sL1 avail.sh | bash -s -- \
         --network "$network" \
         --config_url "$CONFIG_URL" \
-        --upgrade yes \
+        --upgrade $auto_upgrade \
         --identity "$identity" > >(while read -r line; do
             log "$line"
         done) \
@@ -466,28 +466,21 @@ main() {
     log "| 🚀 Starting Sophon Light Node"
     log "+$(printf '%*s' "100" | tr ' ' '-')+"
 
-    # Set up cleanup trap
     trap cleanup EXIT
     
-    # Initial setup
     validate_requirements
     parse_args "$@"
     
-    # Initial checks
     wait_for_monitor
-
-     # Initial version check
     check_version "$auto_upgrade" || true
-    
-    # Start the node
     run_node
 
-    # Version checking loop
+    # Version checking
     while true; do
         log "💤 Next version check in $VERSION_CHECKER_INTERVAL seconds..."
         sleep "$VERSION_CHECKER_INTERVAL"
         
-        if check_version "$auto_upgrade" && [ "$?" -eq 0 ]; then  # Changed condition
+        if check_version "$auto_upgrade" && [ "$?" -eq 0 ]; then
             log "🔄 Version update required, restarting node..."
             cleanup
             exec "$0" "$@"
