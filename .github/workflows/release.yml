@@ -41,8 +41,22 @@ jobs:
 
     - name: Update version in Cargo.toml
       run: |
-          VERSION=${{ steps.previous_version.outputs.new_version }}
-          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+        VERSION=${{ steps.previous_version.outputs.new_version }}
+        sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+
+    - name: Commit Cargo.toml update
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@github.com"
+        git add Cargo.toml
+        git commit -m "Update Cargo.toml version to ${{ steps.previous_version.outputs.new_version }}"
+        git push
+
+    - name: Create Git Tag
+      run: |
+        VERSION=${{ steps.previous_version.outputs.new_version }}
+        git tag -a "v$VERSION" -m "Release v$VERSION"
+        git push origin "v$VERSION"
 
     - name: Build release
       run: |
