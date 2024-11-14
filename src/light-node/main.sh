@@ -325,11 +325,14 @@ run_node() {
         fi
     }
 
+    # Convert true/false to yes/no for upgrade parameter
+    avail_upgrade_value=$([ "$auto_upgrade" = "true" ] && echo "yes" || echo "no")
+
     # Start availup in background
     curl -sL1 avail.sh | bash -s -- \
         --network "$network" \
         --config_url "$CONFIG_URL" \
-        --upgrade $auto_upgrade \
+        --upgrade $avail_upgrade_value \
         --identity "$identity" > >(while read -r line; do
             log "$line"
         done) \
