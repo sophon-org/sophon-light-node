@@ -8,7 +8,8 @@ on:
       - main
 
 jobs:
-  docker-build-and-update:
+
+  build-and-push:
     name: Update Docker image
     runs-on: ubuntu-latest
     
@@ -16,16 +17,11 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@v3
 
-      - name: Get previous version
-        id: previous_version
+      - name: Get version from Cargo.toml
+        id: cargo_toml
         run: |
-          # Get the latest tag
-          PREVIOUS_VERSION=$(git describe --tags --abbrev=0)
-          
-          # Extract the version number
-          VERSION=$(echo $PREVIOUS_VERSION | sed 's/v//')
-          
-          echo "::set-output name=new_version::$VERSION"
+          version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml)
+          echo "CURRENT_VERSION=$version" >> $GITHUB_OUTPUT
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -38,13 +34,13 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build --platform linux/amd64 -t sophonhub/sophon-light-node:${{ steps.previous_version.outputs.new_version }} .
+          docker build --platform linux/amd64 -t sophonhub/sophon-light-node:${{ env.CURRENT_VERSION }} .
 
       - name: Tag Docker Image
         run: |
-          docker tag sophonhub/sophon-light-node:${{ steps.previous_version.outputs.new_version }} sophonhub/sophon-light-node:latest
+          docker tag sophonhub/sophon-light-node:${{ env.CURRENT_VERSION }} sophonhub/sophon-light-node:latest
 
       - name: Push Docker Image
         run: |
-          docker push sophonhub/sophon-light-node:${{ steps.previous_version.outputs.new_version }}
+          docker push sophonhub/sophon-light-node:${{ env.CURRENT_VERSION }}
           docker push sophonhub/sophon-light-node:latest
