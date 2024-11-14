@@ -37,8 +37,8 @@ jobs:
         NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
         
         echo "::set-output name=previous_version::$PREVIOUS_VERSION"
-        echo "::set-output name=new_version::v$NEW_VERSION"
-        
+        echo "::set-output name=new_version::$NEW_VERSION"
+
     - name: Update version in Cargo.toml
       run: |
           VERSION=${{ steps.previous_version.outputs.new_version }}
