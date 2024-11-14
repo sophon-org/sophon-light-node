@@ -31,8 +31,6 @@ RUN set -x && \
         "${GITHUB_BASE_URL}/assets/${BINARY_FILE_ID}" -o "${BINARY_FILE_NAME}" && \
 
     # Extract and set up
-    ls -l && \
-    file "${BINARY_FILE_NAME}" && \
     tar -xzvf "${BINARY_FILE_NAME}" && \
     rm "${BINARY_FILE_NAME}" && \
     chmod +x sophon-node

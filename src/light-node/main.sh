@@ -149,9 +149,9 @@ check_version() {
     local minimum_version
     minimum_version=$(get_minimum_version)
 
+    log "🔔 Minimum required version: $minimum_version"
     log "🔔 Current version: $current_version"
     log "🔔 Latest version: $latest_version"
-    log "🔔 Minimum required version: $minimum_version"
 
     # If current version is 0.0.0, assume it's a new installation
     if [ "$current_version" = "0.0.0" ]; then
