@@ -4,40 +4,25 @@
 ## Documentation
 
 This repo contains a Docker image that:
-- runs an Avail Light client
-- registers the client on Sophon's monitor
+- downloads the latest release of the Sophon Light node
+- runs the node which:
+  - runs the node via Avail
+  - registers the node on Sophon's monitor
 
 This docker image is currently deployed on [Docker Hub: @sophonhub/sophon-light-node](https://hub.docker.com/repository/docker/sophonhub/sophon-light-node/general)
 
 ### Development
-- The light client entrypoint is the `main.sh` script which runs 2 scripts:
+- The light node entrypoint is the `main.sh` script which runs 2 scripts:
   -  [availup.sh](https://github.com/availproject/availup/blob/main/availup.sh), which actually runs the light node and must expose both the API and WS externally (0.0.0.0) 
   -  `register_lc.sh`, to register itself on Sophon's monitor by making an endpoint call
 
 ### Registration
-Nodes need to be registered on Avail's monitor so we can track a node's activity to be able to reward node runners accordingly. 
+Nodes need to be registered on Sophon's monitor so we can track a node's activity to be able to reward node runners accordingly. 
 
-The registration happens automatically when using this Docker image and is done through an endpoint call to `POST /nodes` which receives:
-- node ID address (automatically generated)
-- domain URL: it reads the `PUBLIC_DOMAIN` env. If using the Railway template, this is automatically populated with `RAILWAY_SERVICE_URL` environment variable that is injected on deployments). *If you want to use other infra than Railway you need to define `PUBLIC_DOMAIN` manually with your domain URL*
-- **operator address** this is a required address you need to pass so we establish the link between the node running and who's running it
+The registration happens automatically and is done through an endpoint call to `POST /nodes` which receives. See required params on [README.md](README.md)
   
-## Running a node
+## Running a node directly
 
-**Running on Docker**
-```bash
-# copy .env.example on .env file 
-# (make sure you set the ENV variables)
-cp .env.example .env
-
-# build docker image
-docker build -t sophon-light-node .
-
-# run image
-docker run --env-file .env sophon-light-node
-```
-
-**Running directly**
 Note that `--operator` is only required if you want to participate on the rewards programme. If set, you must also set `--public-domain` and `--monitor-url`
 ```bash
 ./main.sh --operator YOUR_OPERATOR_ADDRESS --destination DESINATION_ADDRESS --percentage 0.5 --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
@@ -62,10 +47,15 @@ cargo fmt
     ./main.sh --operator YOUR_OPERATOR_ADDRESS --destination DESINATION_ADDRESS --percentage 0.5 --public-domain YOUR_PUBLIC_DOMAIN --monitor-url SOPHON_MONITOR_URL
     ```
 
-## Update image
-To update image on DockerHub:
-```bash
-$ docker build --platform linux/amd64 -t sophon-light-node .
-$ docker tag sophon-light-node sophonhub/sophon-light-node:latest
-$ docker push sophonhub/sophon-light-node:latest
-```
+## Continous deployment
+When pushing to `main` brach, there are 2 Github worklows running:
+- release.yml: this workflow performs several actions
+  - increments Cargo.yaml version (and pushes the commit)
+  - creates a git tag
+  - build the release (cargo build)
+  - compresses the binary files
+  - creates the Github release
+  - uploads the compressed file
+- docker.yml
+  - build the docker image
+  - pushes the updated image to Dockerhub
