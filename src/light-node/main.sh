@@ -176,6 +176,7 @@ check_version() {
             fi
         else
             log "+$(printf '%*s' "100" | tr ' ' '-')+"
+            log "| 🔔  [VERSION OUTDATED]"
             log "| 🔔  You are running version $current_version. Latest version is $latest_version"
             log "| 🔔  Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment."
             log "+$(printf '%*s' "100" | tr ' ' '-')+"
@@ -380,9 +381,9 @@ run_node() {
                 die "Registration failed - node terminated"
             }
     else
-        log "🚫" >&2
-        log "🚫  [NOT ELIGIBLE FOR REWARDS] You have not provided an operator. Your Sophon light node will run but not participate in the rewards program." >&2
-        log "🚫" >&2
+        log "🔔" >&2
+        log "🔔  [NOT ELIGIBLE FOR REWARDS] You have not provided an operator. Your Sophon light node will run but not participate in the rewards program." >&2
+        log "🔔" >&2
     fi
 }
 
