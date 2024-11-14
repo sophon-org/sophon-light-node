@@ -35,11 +35,6 @@ RUN set -x && \
     file "${BINARY_FILE_NAME}" && \
     tar -xzvf "${BINARY_FILE_NAME}" && \
     rm "${BINARY_FILE_NAME}" && \
-    ls -l && \
-    pwd && \
-    file ./sophon-node && \
-    ./sophon-node --version && \
-    lala && \
     chmod +x sophon-node
 
 ENTRYPOINT ["/app/sophon-node"]
