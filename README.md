@@ -7,7 +7,7 @@ Know more in our [Docs](https://docs.sophon.xyz/sophon/sophon-guardians-and-node
 
 ## How to run your Sophon's Light Node
 
-For a guided experience, you can visist the [Guardians Dashboard](https://guardian.sophon.xyz).
+For a guided experience, you can visit the [Guardians Dashboard](https://guardian.sophon.xyz).
 
 ### Using third party node as a service providers
 
@@ -28,6 +28,8 @@ Use our Docker image to run the Light Node anywhere you want. The main requireme
 
 [![Docker](https://cdn.icon-icons.com/icons2/2530/PNG/128/dockerhub_button_icon_151899.png)](https://hub.docker.com/r/sophonhub/sophon-light-node)
 
+More info on the following env variables on [Environment variables](#environment-variables)
+
 ```
 # pull docker image
 docker pull --platform linux/amd64 sophonhub/sophon-light-node
@@ -38,8 +40,8 @@ docker run -d --name sophon-light-node sophonhub/sophon-light-node
 # if you want to be eligible for rewards you must pass the required env vars
 docker run -d --name sophon-light-node \
     -e OPERATOR_ADDRESS=<You operator wallet address> \
-    -e DESTINATION_ADDRESS=<The destination wallet address> \
-    -e PERCENTAGE=<The percentage from the total rewards to be sent to the DESTINATION_ADDRESS. Must be from 0.00 to 100. Only 2 decimals allowed.> \
+    -e DESTINATION_ADDRESS=<The rewards destination wallet address> \
+    -e PERCENTAGE=<The percentage this node will charge as rewards comission from delegators> \
     -e PUBLIC_DOMAIN=<Your public URL/IP> \
     sophonhub/sophon-light-node
 ```
@@ -54,11 +56,11 @@ While this is not required to run a node, bear in mind that if you want to parti
 If you're using Railway, all variables are pre-populated for you except for your **Operator wallet address**. 
 If decide not to use Railway, you can use our Docker image making sure to set the following environment variables:
 ```
-OPERATOR_ADDRESS= # your Light Node operator address, which is the one that must receive delegations to be eligible to receive rewards. The more delegations, the more rewards, with a cap limit of 20 delegations.
+OPERATOR_ADDRESS= # Your Light Node operator address, which is the one that must receive delegations to be eligible to receive rewards. The more delegations, the more rewards, with a cap limit of 20 delegations.
 
-DESTINATION_ADDRESS= # [OPTIONAL] this is the wallet address that will receive a percentage of your rewards. Most likely, this is your delegator's address. If not passed, it defaults to the OPERATOR_ADDRESS.
+PERCENTAGE= # The percentage this node will charge as rewards comission from delegators. Basically rewards are calculated based on delegated amount, and this percentage defines how much goes to you as node operator, and the rest goes to delegators. It must be a decimal from 0.00 to 100. Only 2 decimals allowed.
 
-PERCENTAGE= # this defines the percentage of the total rewards that will be sent to DESTINATION_ADDRESS. It must be a decimal from 0.00 to 100. Only 2 decimals allowed.
+DESTINATION_ADDRESS= # [OPTIONAL] this is the wallet address that will receive rewards from the Guardians programme (based on the percetage defined above). Most of the times it will be the operator address, but you can define a different one. If not passed, it defaults to the OPERATOR_ADDRESS.
 
 PUBLIC_DOMAIN= # this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers
 ```
