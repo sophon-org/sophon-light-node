@@ -53,7 +53,7 @@ If you are running the node on any VPS (including Railway) or even locally on yo
 
 While this is not required to run a node, bear in mind that if you want to participate in Sophon's Guardians Reward Program, you MUST set your operator wallet address. *If you either do not pass any address or you pass an address that doesn't contain any Guardian Membership delegations, the node will run but you won't be eligible for rewards. Now more about rewards in our [Docs](https://docs.sophon.xyz/sophon/sophon-guardians-and-nodes/node-rewards).*
 
-If you're using Railway, all variables are pre-populated for you except for your **Operator wallet address**. 
+If you're using Railway, all variables are pre-populated for you except for your **operator wallet address** and **percentage**. 
 If decide not to use Railway, you can use our Docker image making sure to set the following environment variables:
 ```
 OPERATOR_ADDRESS= # Your Light Node operator address, which is the one that must receive delegations to be eligible to receive rewards. The more delegations, the more rewards, with a cap limit of 20 delegations.
