@@ -88,14 +88,15 @@ register_node() {
                 log "
                     +$(printf '%*s' "100" | tr ' ' '-')+
                     🔔
-                    🔔 Warning: $warning_message
+                    🔔 $warning_message
                     🔔
+                    +$(printf '%*s' "100" | tr ' ' '-')+
                 "
             fi
             log "✅ Node registered/sync'd successfully!"
             ;;
         400)
-            die " Bad request: $response_body"
+            die "Bad request: $response_body"
             ;;
         403)
             log "

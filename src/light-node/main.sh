@@ -40,8 +40,8 @@ get_current_version() {
         ./sophon-node --version 2>/dev/null || echo "0.0.0"
     else
         # If running locally, check in target/release
-        if [ -f "./release/sophon-node" ] && [ -x "./release/sophon-node" ]; then
-            ./release/sophon-node --version 2>/dev/null || echo "0.0.0"
+        if [ -f "./target/release/sophon-node" ] && [ -x "./target/release/sophon-node" ]; then
+            ./target/release/sophon-node --version 2>/dev/null || echo "0.0.0"
         else
             echo "0.0.0"
         fi
@@ -156,7 +156,7 @@ check_version() {
     fi
     
     # Check if update is available
-    if [ $(compare_versions "$current_version" "$latest_version") -lt 0 ]; then
+    if [ $(compare_versions $current_version $minimum_version) -lt 0 ]; then
         if [ "$auto_upgrade" = "true" ]; then
             log "
                 +$(printf '%*s' "100" | tr ' ' '-')+
@@ -172,8 +172,8 @@ check_version() {
             fi
         else
             # Check minimum version requirement
-            if [ $(compare_versions $current_version $minimum_version) -lt 0 ]; then
-                die "Current version ($current_version) is below minimum required version ($minimum_version). Please update."
+            if [ ! $(compare_versions "$current_version" "$latest_version") -lt 0 ]; then
+                die "Current version ($current_version) is below minimum required version ($minimum_version). Node process will be terminated."
             else
                 log "
                     +$(printf '%*s' "100" | tr ' ' '-')+
