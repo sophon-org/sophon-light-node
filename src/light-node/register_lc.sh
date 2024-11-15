@@ -87,9 +87,9 @@ register_node() {
             if [ -n "$warning_message" ]; then
                 log "
                     +$(printf '%*s' "100" | tr ' ' '-')+
-                    ⚠️
-                    ⚠️ Warning: $warning_message
-                    ⚠️
+                    🔔
+                    🔔 Warning: $warning_message
+                    🔔
                 "
             fi
             log "✅ Node registered/sync'd successfully!"

@@ -40,8 +40,8 @@ get_current_version() {
         ./sophon-node --version 2>/dev/null || echo "0.0.0"
     else
         # If running locally, check in target/release
-        if [ -f "./target/release/sophon-node" ] && [ -x "./target/release/sophon-node" ]; then
-            ./target/release/sophon-node --version 2>/dev/null || echo "0.0.0"
+        if [ -f "./release/sophon-node" ] && [ -x "./release/sophon-node" ]; then
+            ./release/sophon-node --version 2>/dev/null || echo "0.0.0"
         else
             echo "0.0.0"
         fi
@@ -160,7 +160,7 @@ check_version() {
         if [ "$auto_upgrade" = "true" ]; then
             log "
                 +$(printf '%*s' "100" | tr ' ' '-')+
-                | 🔔  [VERSION OUTDATED]
+                | 🔔 [VERSION OUTDATED]
                 | 🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...
                 +$(printf '%*s' "100" | tr ' ' '-')+
             "
@@ -177,11 +177,11 @@ check_version() {
             else
                 log "
                     +$(printf '%*s' "100" | tr ' ' '-')+
-                    | 🔔  [VERSION OUTDATED]
-                    | 🔔  Minimum required version: $minimum_version
-                    | 🔔  Current version: $current_version
-                    | 🔔  Latest version: $latest_version
-                    | 🔔  Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment.
+                    | 🔔 [VERSION OUTDATED]
+                    | 🔔 Minimum required version: $minimum_version
+                    | 🔔 Current version: $current_version
+                    | 🔔 Latest version: $latest_version
+                    | 🔔 Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment.
                     +$(printf '%*s' "100" | tr ' ' '-')+
                 "
                 return 1
@@ -190,8 +190,8 @@ check_version() {
     else
         log "
             +$(printf '%*s' "100" | tr ' ' '-')+
-            | 🔔  Current version: $current_version
-            | 🔔  Latest version: $latest_version
+            | 🔔 Current version: $current_version
+            | 🔔 Latest version: $latest_version
             | ✅ Running latest version: $current_version
             +$(printf '%*s' "100" | tr ' ' '-')+
         "
@@ -413,8 +413,8 @@ run_node() {
     else
         log "
             +$(printf '%*s' "100" | tr ' ' '-')+
-            | 🔔  [NOT ELIGIBLE FOR REWARDS]
-            | 🔔  You have not provided an operator. Your Sophon light node will run but not participate in the rewards program.
+            | 🔔 [NOT ELIGIBLE FOR REWARDS]
+            | 🔔 You have not provided an operator. Your Sophon light node will run but not participate in the rewards program.
             +$(printf '%*s' "100" | tr ' ' '-')+
         "
     fi
@@ -463,7 +463,7 @@ main() {
         | 🚀 Starting Sophon Light Node
         +$(printf '%*s' "100" | tr ' ' '-')+
     "
-            
+    
     trap cleanup EXIT
     
     parse_args "$@"
