@@ -149,10 +149,6 @@ check_version() {
     local minimum_version
     minimum_version=$(get_minimum_version)
 
-    log "🔔 Minimum required version: $minimum_version"
-    log "🔔 Current version: $current_version"
-    log "🔔 Latest version: $latest_version"
-
     # If current version is 0.0.0, assume it's a new installation
     if [ "$current_version" = "0.0.0" ]; then
         log "🚀 New installation detected"
@@ -167,7 +163,10 @@ check_version() {
     # Check if update is available
     if [ $(compare_versions "$current_version" "$latest_version") -lt 0 ]; then
         if [ "$auto_upgrade" = "true" ]; then
-            log "🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version..."
+            log "+$(printf '%*s' "100" | tr ' ' '-')+
+            | 🔔  [VERSION OUTDATED]
+            | 🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...
+            +$(printf '%*s' "100" | tr ' ' '-')+"
             if update_version "$latest_version"; then
                 return 0  # Signal to restart
             else
@@ -175,15 +174,22 @@ check_version() {
                 return 1
             fi
         else
-            log "+$(printf '%*s' "100" | tr ' ' '-')+"
-            log "| 🔔  [VERSION OUTDATED]"
-            log "| 🔔  You are running version $current_version. Latest version is $latest_version"
-            log "| 🔔  Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment."
-            log "+$(printf '%*s' "100" | tr ' ' '-')+"
+            log "+$(printf '%*s' "100" | tr ' ' '-')+
+            | 🔔  [VERSION OUTDATED]
+            | 🔔  Minimum required version: $minimum_version
+            | 🔔  Current version: $current_version
+            | 🔔  Latest version: $latest_version
+            | 🔔  Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment.
+            +$(printf '%*s' "100" | tr ' ' '-')+"
             return 1
         fi
     else
-        log "✅ Running latest version: $current_version"
+        log "
+        +$(printf '%*s' "100" | tr ' ' '-')+
+        | 🔔  Current version: $current_version
+        | 🔔  Latest version: $latest_version
+        | ✅ Running latest version: $current_version
+        +$(printf '%*s' "100" | tr ' ' '-')+"
         return 1
     fi
 }
@@ -447,7 +453,7 @@ main() {
     log "+$(printf '%*s' "100" | tr ' ' '-')+"
     log "| 🚀 Starting Sophon Light Node"
     log "+$(printf '%*s' "100" | tr ' ' '-')+"
-
+            
     trap cleanup EXIT
     
     parse_args "$@"
