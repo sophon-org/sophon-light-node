@@ -85,9 +85,12 @@ register_node() {
         200)
             log "☎️  Response: $response_body"
             if [ -n "$warning_message" ]; then
-                log "⚠️"
-                log "⚠️ Warning: $warning_message"
-                log "⚠️"
+                log "
+                    +$(printf '%*s' "100" | tr ' ' '-')+
+                    ⚠️
+                    ⚠️ Warning: $warning_message
+                    ⚠️
+                "
             fi
             log "✅ Node registered/sync'd successfully!"
             ;;
@@ -95,8 +98,12 @@ register_node() {
             die " Bad request: $response_body"
             ;;
         403)
-            log "⚠️  [NOT ELIGIBLE FOR REWARDS] The operator wallet has no delegated guardian memberships."
-            log "⚠️  Node will run but won't participate in rewards program. You can get delegations later."
+            log "
+                +$(printf '%*s' "100" | tr ' ' '-')+
+                ⚠️  [NOT ELIGIBLE FOR REWARDS] The operator wallet has no delegated guardian memberships.
+                ⚠️  Node will run but won't participate in rewards program. You can get delegations later.
+                ⚠️
+            "
             return 0
             ;;
         500)

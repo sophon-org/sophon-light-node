@@ -155,18 +155,15 @@ check_version() {
         return 1
     fi
     
-    # Check minimum version requirement first
-    if [ $(compare_versions $current_version $minimum_version) -lt 0 ]; then
-        die "Current version ($current_version) is below minimum required version ($minimum_version). Please update."
-    fi
-    
     # Check if update is available
     if [ $(compare_versions "$current_version" "$latest_version") -lt 0 ]; then
         if [ "$auto_upgrade" = "true" ]; then
-            log "+$(printf '%*s' "100" | tr ' ' '-')+
-            | 🔔  [VERSION OUTDATED]
-            | 🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...
-            +$(printf '%*s' "100" | tr ' ' '-')+"
+            log "
+                +$(printf '%*s' "100" | tr ' ' '-')+
+                | 🔔  [VERSION OUTDATED]
+                | 🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...
+                +$(printf '%*s' "100" | tr ' ' '-')+
+            "
             if update_version "$latest_version"; then
                 return 0  # Signal to restart
             else
@@ -174,22 +171,30 @@ check_version() {
                 return 1
             fi
         else
-            log "+$(printf '%*s' "100" | tr ' ' '-')+
-            | 🔔  [VERSION OUTDATED]
-            | 🔔  Minimum required version: $minimum_version
-            | 🔔  Current version: $current_version
-            | 🔔  Latest version: $latest_version
-            | 🔔  Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment.
-            +$(printf '%*s' "100" | tr ' ' '-')+"
-            return 1
+            # Check minimum version requirement
+            if [ $(compare_versions $current_version $minimum_version) -lt 0 ]; then
+                die "Current version ($current_version) is below minimum required version ($minimum_version). Please update."
+            else
+                log "
+                    +$(printf '%*s' "100" | tr ' ' '-')+
+                    | 🔔  [VERSION OUTDATED]
+                    | 🔔  Minimum required version: $minimum_version
+                    | 🔔  Current version: $current_version
+                    | 🔔  Latest version: $latest_version
+                    | 🔔  Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment.
+                    +$(printf '%*s' "100" | tr ' ' '-')+
+                "
+                return 1
+            fi
         fi
     else
         log "
-        +$(printf '%*s' "100" | tr ' ' '-')+
-        | 🔔  Current version: $current_version
-        | 🔔  Latest version: $latest_version
-        | ✅ Running latest version: $current_version
-        +$(printf '%*s' "100" | tr ' ' '-')+"
+            +$(printf '%*s' "100" | tr ' ' '-')+
+            | 🔔  Current version: $current_version
+            | 🔔  Latest version: $latest_version
+            | ✅ Running latest version: $current_version
+            +$(printf '%*s' "100" | tr ' ' '-')+
+        "
         return 1
     fi
 }
@@ -406,9 +411,12 @@ run_node() {
                 die "Registration failed - node terminated"
             }
     else
-        log "🔔" >&2
-        log "🔔  [NOT ELIGIBLE FOR REWARDS] You have not provided an operator. Your Sophon light node will run but not participate in the rewards program." >&2
-        log "🔔" >&2
+        log "
+            +$(printf '%*s' "100" | tr ' ' '-')+
+            | 🔔  [NOT ELIGIBLE FOR REWARDS]
+            | 🔔  You have not provided an operator. Your Sophon light node will run but not participate in the rewards program.
+            +$(printf '%*s' "100" | tr ' ' '-')+
+        "
     fi
 }
 
@@ -450,9 +458,11 @@ cleanup() {
 }
 
 main() {
-    log "+$(printf '%*s' "100" | tr ' ' '-')+"
-    log "| 🚀 Starting Sophon Light Node"
-    log "+$(printf '%*s' "100" | tr ' ' '-')+"
+    log "
+        +$(printf '%*s' "100" | tr ' ' '-')+
+        | 🚀 Starting Sophon Light Node
+        +$(printf '%*s' "100" | tr ' ' '-')+
+    "
             
     trap cleanup EXIT
     
