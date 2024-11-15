@@ -1,6 +1,6 @@
 [package]
 name = "sophon-light-node"
-version = "0.0.55"
+version = "0.0.56"
 edition = "2021"
 
 [dependencies]
