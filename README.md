@@ -41,7 +41,7 @@ docker run -d --name sophon-light-node sophonhub/sophon-light-node
 docker run -d --name sophon-light-node \
     -e OPERATOR_ADDRESS=<You operator wallet address> \
     -e DESTINATION_ADDRESS=<The rewards destination wallet address> \
-    -e PERCENTAGE=<The percentage this node will charge as rewards comission from delegators> \
+    -e PERCENTAGE=<The percentage this node will charge as rewards fee from delegators> \
     -e PUBLIC_DOMAIN=<Your public URL/IP> \
     sophonhub/sophon-light-node
 ```
@@ -56,13 +56,13 @@ While this is not required to run a node, bear in mind that if you want to parti
 If you're using Railway, all variables are pre-populated for you except for your **operator wallet address** and **percentage**. 
 If decide not to use Railway, you can use our Docker image making sure to set the following environment variables:
 ```
-OPERATOR_ADDRESS= # Your Light Node operator address, which is the one that must receive delegations to be eligible to receive rewards. The more delegations, the more rewards, with a cap limit of 20 delegations.
+OPERATOR_ADDRESS= # [OPTIONAL] Your Light Node operator address, which is the one that must receive delegations to be eligible to receive rewards. The more delegations, the more rewards, with a cap limit of 20 delegations. **Required** if you want to participate on the rewards programme.
 
-PERCENTAGE= # The percentage this node will charge as rewards comission from delegators. Basically rewards are calculated based on delegated amount, and this percentage defines how much goes to you as node operator, and the rest goes to delegators. It must be a decimal from 0.00 to 100. Only 2 decimals allowed.
+DESTINATION_ADDRESS= # [OPTIONAL] this is the wallet address that will receive rewards from the Guardians programme (based on the percetage defined above). Most of the times it will be the operator address, but you can define a different one. Defaults to OPERATOR_ADDRESS if not set.
 
-DESTINATION_ADDRESS= # [OPTIONAL] this is the wallet address that will receive rewards from the Guardians programme (based on the percetage defined above). Most of the times it will be the operator address, but you can define a different one. If not passed, it defaults to the OPERATOR_ADDRESS.
+PERCENTAGE= # [OPTIONAL] The percentage this node will charge as rewards fee from delegators. Basically, rewards are calculated based on delegated amount, and this percentage defines how much goes to you as node operator, and the rest goes to delegators. It must be a decimal from 0.00 to 100. Only 2 decimals allowed. **Required** if OPERATOR_ADDRESS is set, ignored otherwise.
 
-PUBLIC_DOMAIN= # this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers
+PUBLIC_DOMAIN= # [OPTIONAL] this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers. **Required** if OPERATOR_ADDRESS is set.
 ```
 
 ## FAQ

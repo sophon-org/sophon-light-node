@@ -203,6 +203,15 @@ validate_requirements() {
     chmod +x "$SCRIPT_DIR/register_lc.sh"    
     command -v jq >/dev/null 2>&1 || die "jq is required but not installed"
     command -v curl >/dev/null 2>&1 || die "curl is required but not installed"
+    
+    # validate operator-related parameters
+    if [ -n "${operator:-}" ]; then
+        [ -n "${percentage:-}" ] || die "\`percentage\` parameter is required when operator is set"
+        [[ "$percentage" =~ ^[0-9]+(\.[0-9]{1,2})?$ ]] || die "\`percentage\` must be a decimal value with at most 2 decimal places"
+        [ -n "${public_domain:-}" ] || die "\`public-domain\` parameter is required when operator is set"
+        [ -n "${identity:-}" ] || die "\`identity\` parameter is required"
+        [ -n "${monitor_url:-}" ] || die "\`monitor-url\` parameter is required"
+    fi
 }
 
 parse_args() {
@@ -441,8 +450,8 @@ main() {
 
     trap cleanup EXIT
     
-    validate_requirements
     parse_args "$@"
+    validate_requirements
     
     wait_for_monitor
     check_version "$auto_upgrade" || true

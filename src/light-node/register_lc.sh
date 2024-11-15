@@ -16,10 +16,15 @@ validate_requirements() {
     command -v curl >/dev/null 2>&1 || die "curl is required but not installed"
     
     [ -n "${operator:-}" ] || die "\`operator\` parameter is required"
-    [ -z "${percentage}" ] || [[ "$percentage" =~ ^[0-9]+(\.[0-9]{1,2})?$ ]] || die "\`percentage\` must be a decimal value with 2 decimal places"
-    [ -n "${identity:-}" ] || die "\`identity\` parameter is required"
-    [ -n "${public_domain:-}" ] || die "\`public-domain\` parameter is required"
-    [ -n "${monitor_url:-}" ] || die "\`monitor-url\` parameter is required"
+    
+    # validate operator-related parameters
+    if [ -n "${operator:-}" ]; then
+        [ -n "${percentage:-}" ] || die "\`percentage\` parameter is required when operator is set"
+        [[ "$percentage" =~ ^[0-9]+(\.[0-9]{1,2})?$ ]] || die "\`percentage\` must be a decimal value with at most 2 decimal places"
+        [ -n "${public_domain:-}" ] || die "\`public-domain\` parameter is required when operator is set"
+        [ -n "${identity:-}" ] || die "\`identity\` parameter is required"
+        [ -n "${monitor_url:-}" ] || die "\`monitor-url\` parameter is required"
+    fi
 }
 
 parse_args() {
