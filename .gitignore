@@ -4,4 +4,3 @@ avail_path
 .DS_Store
 /identity
 /release
-Cargo.lock
