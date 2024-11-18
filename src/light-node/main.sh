@@ -167,7 +167,7 @@ check_version() {
             if update_version "$latest_version"; then
                 return 0  # Signal to restart
             else
-                log "❌ Update failed, continuing with current version"
+                log "❌ Update failed, continuing with current version."
                 return 1
             fi
         else
@@ -297,7 +297,7 @@ wait_for_node() {
            response=$(cat /tmp/health_response) && \
            first_block=$(echo "$response" | jq -r '.blocks.available.first') && \
            [ "$first_block" != "null" ]; then
-            log "☀️  Node is up! First available block: $first_block"
+            log "☀️ Node is up! First available block: $first_block"
             return 0
         fi
         
@@ -408,7 +408,7 @@ run_node() {
         log "
             +$(printf '%*s' "100" | tr ' ' '-')+
             | 🔔 [NOT ELIGIBLE FOR REWARDS]
-            | 🔔 You have not provided an operator. Your Sophon light node will run but not participate in the rewards program.
+            | 🔔 You have not provided an operator address. Your Sophon Light Node will run but not participate in the rewards program.
             +$(printf '%*s' "100" | tr ' ' '-')+
         "
     fi

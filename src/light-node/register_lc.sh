@@ -83,7 +83,7 @@ register_node() {
 
     case $http_status in
         200)
-            log "☎️  Response: $response_body"
+            log "☎️ Response: $response_body"
             log "✅ Node registered/sync'd successfully!"
             ;;
         400)
