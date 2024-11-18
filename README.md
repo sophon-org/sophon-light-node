@@ -83,7 +83,7 @@ curl -X PUT "https://monitor.sophon.xyz/nodes" \
 ### I want to delete my node
 Registered nodes can not be deleted.
 
-### I want to retrieve all my nodes
+### I want to retrieve my node information
 ```
 curl -X GET "https://monitor.sophon.xyz/nodes?operator=OPERATOR_ADDRESS&timestamp=TIMESTAMP" \
 -H "Content-Type: application/json" \

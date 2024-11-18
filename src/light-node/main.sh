@@ -188,13 +188,7 @@ check_version() {
             fi
         fi
     else
-        log "
-            +$(printf '%*s' "100" | tr ' ' '-')+
-            | 🔔 Current version: $current_version
-            | 🔔 Latest version: $latest_version
-            | ✅ Running latest version: $current_version
-            +$(printf '%*s' "100" | tr ' ' '-')+
-        "
+        log "✅ Running latest version: $current_version"
         return 1
     fi
 }

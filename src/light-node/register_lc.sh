@@ -79,32 +79,20 @@ register_node() {
     
     http_status=$(echo "$response" | tail -n1)
     response_body=$(echo "$response" | sed '$d')
-    warning_message=$(echo "$response_body" | jq -r '.warning // empty')
-    
+    error=$(echo "$response_body" | jq -r '.error // empty')
+
     case $http_status in
         200)
             log "☎️  Response: $response_body"
-            if [ -n "$warning_message" ]; then
-                log "
-                    +$(printf '%*s' "100" | tr ' ' '-')+
-                    🔔
-                    🔔 $warning_message
-                    🔔
-                    +$(printf '%*s' "100" | tr ' ' '-')+
-                "
-            fi
             log "✅ Node registered/sync'd successfully!"
             ;;
         400)
             die "Bad request: $response_body"
             ;;
         403)
-            log "
-                +$(printf '%*s' "100" | tr ' ' '-')+
-                ⚠️  [NOT ELIGIBLE FOR REWARDS] The operator wallet has no delegated guardian memberships.
-                ⚠️  Node will run but won't participate in rewards program. You can get delegations later.
-                ⚠️
-            "
+            echo $error
+            # if error exists, die with error message
+            [ -z "$error" ] || die "$error"
             return 0
             ;;
         500)
