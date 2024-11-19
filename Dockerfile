@@ -1,7 +1,5 @@
 FROM ubuntu:latest
 
-ARG GITHUB_TOKEN
-
 # Install minimal dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -17,7 +15,7 @@ WORKDIR /app
 RUN set -x && \
     # Get latest release info
     GITHUB_BASE_URL="https://api.github.com/repos/sophon-org/sophon-light-node/releases" && \
-    RELEASE_INFO=$(curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" ${GITHUB_BASE_URL}/latest) && \
+    RELEASE_INFO=$(curl -s ${GITHUB_BASE_URL}/latest) && \
 
     # Get the URL and name for the tar.gz file
     BINARY_FILE_ID=$(echo "${RELEASE_INFO}" | jq -r '.assets[0] | select(.name | endswith("tar.gz")) | .id') && \
@@ -27,7 +25,6 @@ RUN set -x && \
     curl ${curl_custom_flags} \ 
      -L \
      -H "Accept: application/octet-stream" \
-     -H "Authorization: Bearer ${GITHUB_TOKEN}" \
         "${GITHUB_BASE_URL}/assets/${BINARY_FILE_ID}" -o "${BINARY_FILE_NAME}" && \
 
     # Extract and set up

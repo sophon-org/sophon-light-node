@@ -35,7 +35,7 @@ jobs:
       - name: Build Docker Image
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          docker build --build-arg GITHUB_TOKEN=${{secrets.GITHUB_TOKEN}} --platform linux/amd64 -t sophonhub/sophon-light-node:${{ steps.version.outputs.version }} .
+          docker build --platform linux/amd64 -t sophonhub/sophon-light-node:${{ steps.version.outputs.version }} .
 
       - name: Tag Docker Image
         run: |

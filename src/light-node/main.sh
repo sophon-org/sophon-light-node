@@ -10,9 +10,7 @@ readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-n
 
 # Version checks
 get_latest_version_info() {
-    [ -n "${GITHUB_TOKEN:-}" ] || die "GITHUB_TOKEN is required"
-    curl -s -H "Authorization: token $GITHUB_TOKEN" \
-        https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    curl -s https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
 }
 
 # Get minimum version from config
@@ -77,7 +75,6 @@ update_version() {
 
     log "🔍 Downloading from: $asset_url"
     curl -L \
-         -H "Authorization: token $GITHUB_TOKEN" \
          -H "Accept: application/octet-stream" \
          -o "$binary_name" \
          "$asset_url"
