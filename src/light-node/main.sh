@@ -6,7 +6,7 @@ readonly DEFAULT_NETWORK="mainnet"
 readonly DEFAULT_MONITOR_URL="https://monitor-stg.sophon.xyz"
 readonly DEFAULT_VERSION_CHECKER_INTERVAL=86400  # 1 day
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-node/main/src.light-node/config.yml"
+readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/src/light-node/config.yml"
 
 # Version checks
 get_latest_version_info() {
