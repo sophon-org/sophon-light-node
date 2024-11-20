@@ -10,7 +10,7 @@ readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-n
 
 # Version checks
 get_latest_version_info() {
-    curl -s https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
 }
 
 # Get minimum version from config
@@ -432,7 +432,7 @@ update_avail_config() {
     mkdir -p "$config_dir"
 
     # Download config file
-    curl -s "$CONFIG_URL" -o "$config_file"
+    curl -s -H "Cache-Control: no-cache" "$CONFIG_URL" -o "$config_file"
 
     # Create temp file and update port
     temp_file=$(mktemp)
