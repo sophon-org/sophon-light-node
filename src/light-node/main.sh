@@ -338,14 +338,7 @@ run_node() {
     }
 
     # Check if we need custom config
-    config_arg=""
-    if [ -n "${PORT:-}" ] && [ "$PORT" != "7007" ]; then
-        log "🔌 Configuring custom port: $PORT"
-        config_file=$(update_avail_config)
-        config_arg="--config $config_file"
-    else 
-        config_arg="--config_url $CONFIG_URL"
-    fi
+    config_file=$(create_avail_config)
 
     # Convert true/false to yes/no for upgrade parameter
     avail_upgrade_value=$([ "$auto_upgrade" = "true" ] && echo "yes" || echo "no")
@@ -353,7 +346,7 @@ run_node() {
     # Start availup in background
     curl -sL1 avail.sh | bash -s -- \
         --network "$network" \
-        $config_arg \
+        --config "$config_file" \
         --upgrade $avail_upgrade_value \
         --identity "$identity" > >(while read -r line; do
             log "$line"
@@ -424,7 +417,7 @@ wait_for_monitor() {
     log "✅ Monitor service is up!"
 }
 
-update_avail_config() {
+create_avail_config() {
     local config_dir="$HOME/.avail/$network/config"
     local config_file="$config_dir/config.yml"
     
@@ -434,11 +427,12 @@ update_avail_config() {
     # Download config file
     curl -s -H "Cache-Control: no-cache" "$CONFIG_URL" -o "$config_file"
 
-    # Create temp file and update port
-    temp_file=$(mktemp)
-    sed "s/http_server_port = .*/http_server_port = $PORT/" "$config_file" > "$temp_file"
-    mv "$temp_file" "$config_file"
-
+    # if PORT is set, update the port in the config file
+    if [ -n "${PORT:-}" ] && [ "$PORT" != "7007" ]; then
+        temp_file=$(mktemp)
+        sed "s/http_server_port = .*/http_server_port = $PORT/" "$config_file" > "$temp_file"
+        mv "$temp_file" "$config_file"
+    fi
     echo "$config_file"
 }
 
