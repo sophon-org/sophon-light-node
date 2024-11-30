@@ -4584,7 +4584,7 @@ dependencies = [
 
 [[package]]
 name = "sophon-light-node"
-version = "0.0.59"
+version = "0.0.69"
 dependencies = [
  "avail-rust",
  "clap",

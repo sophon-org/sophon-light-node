@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+IFS=$'\n\t'
 
 # Constants
 readonly DEFAULT_NETWORK="mainnet"
@@ -7,6 +8,8 @@ readonly DEFAULT_MONITOR_URL="https://monitor-stg.sophon.xyz"
 readonly DEFAULT_VERSION_CHECKER_INTERVAL=86400  # 1 day
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/src/light-node/config.yml"
+readonly LOG_FILE="$HOME/sophon-node.log"
+readonly MAX_LOG_SIZE=100M
 
 # Version checks
 get_latest_version_info() {
@@ -192,7 +195,13 @@ check_version() {
 
 # Function definitions
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+    local message="$(date '+%Y-%m-%d %H:%M:%S') $1"
+    echo "$message" | tee -a "$LOG_FILE"
+    
+    # rotate logs if too large
+    if [ -f "$LOG_FILE" ] && [ $(stat -f%z "$LOG_FILE") -gt $((100*1024*1024)) ]; then
+        mv "$LOG_FILE" "$LOG_FILE.old"
+    fi
 }
 
 die() {
@@ -315,17 +324,17 @@ run_node() {
     avail_light_pid=""
 
     cleanup_and_exit() {
-        local message="$1"
-        log "🔍 Debug: Cleanup triggered with message: $message"
+        local message="${1:-Cleanup triggered}"
+        log "🔍 Debug: $message"
         
-        if [ -n "$availup_pid" ] && ps -p $availup_pid > /dev/null 2>&1; then
+        if [ -n "$availup_pid" ]; then
             log "🔍 Debug: Killing availup process $availup_pid"
-            kill $availup_pid 2>/dev/null || log "🔍 Debug: Kill failed"
+            kill "$availup_pid" 2>/dev/null || true
         fi
 
-        if [ -n "$avail_light_pid" ] && ps -p $avail_light_pid > /dev/null 2>&1; then
+        if [ -n "$avail_light_pid" ]; then
             log "🔍 Debug: Killing avail-light process $avail_light_pid"
-            kill $avail_light_pid 2>/dev/null || log "🔍 Debug: Kill failed"
+            kill "$avail_light_pid" 2>/dev/null || true
         fi
         exit 1
     }
@@ -359,9 +368,9 @@ run_node() {
     log "🔍 Availup started with PID: $availup_pid"
     
     # Set up traps
-    trap 'cleanup_and_exit "Node terminated by SIGINT"' SIGINT
-    trap 'cleanup_and_exit "Node terminated by SIGTERM"' SIGTERM
-    trap 'check_process_health' SIGCHLD
+    trap 'cleanup_and_exit "Node terminated by SIGINT"' INT
+    trap 'cleanup_and_exit "Node terminated by SIGTERM"' TERM
+    trap 'check_process_health' CHLD
 
     # Wait a bit for avail-light to start
     sleep 5
@@ -438,19 +447,38 @@ create_avail_config() {
 
 cleanup() {
     log "🧹 Cleaning up..."
+    # Kill entire process group
+    kill -TERM -$$
+
+    # Force kill any remaining avail-light processes
+    pkill -9 -f "avail-light" || true
+
+    # Clean temporary files
     rm -f /tmp/health_response
-    pkill -f "avail-light" || true
+    find /tmp -name "sophon-*" -mtime +1 -delete
+}
+
+check_memory_usage() {
+    local max_memory_mb=30000  # 30GB
+    local current_memory=$(ps -o rss= -p $avail_light_pid | awk '{print $1/1024}')
+    log "📊 Current memory usage: ${current_memory%.*}MB"
+    
+    if [ "${current_memory%.*}" -gt "$max_memory_mb" ]; then
+        log "⚠️ Memory usage exceeded ${max_memory_mb}MB. Initiating graceful restart..."
+        cleanup
+        exec "$0" "$@"
+    fi
 }
 
 main() {
     log "
         +$(printf '%*s' "100" | tr ' ' '-')+
-        | 🚀 Starting Sophon Light Node
+        | 🚀 Starting SSSSSophon Light Node
         +$(printf '%*s' "100" | tr ' ' '-')+
     "
     
     trap cleanup EXIT
-    
+
     parse_args "$@"
     validate_requirements
     
@@ -461,8 +489,11 @@ main() {
     # Version checking
     while true; do
         log "💤 Next version check in $VERSION_CHECKER_INTERVAL seconds..."
+
         sleep "$VERSION_CHECKER_INTERVAL"
         
+        check_memory_usage
+
         if check_version "$auto_upgrade" && [ "$?" -eq 0 ]; then
             log "🔄 Version update required, restarting node..."
             cleanup
