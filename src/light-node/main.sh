@@ -382,9 +382,9 @@ run_node() {
     log "🔍 Availup started with PID: $availup_pid"
     
     # Set up traps
-    trap 'cleanup_and_exit "Node terminated by SIGINT"' INT
-    trap 'cleanup_and_exit "Node terminated by SIGTERM"' TERM
-    trap 'check_process_health' CHLD
+    trap 'cleanup_and_exit "Node terminated by SIGINT"' SIGINT
+    trap 'cleanup_and_exit "Node terminated by SIGTERM"' SIGTERM
+    trap 'check_process_health' SIGCHLD
 
     # Wait a bit for avail-light to start
     sleep 5
@@ -461,15 +461,18 @@ create_avail_config() {
 
 cleanup() {
     log "🧹 Cleaning up..."
-    # Kill entire process group
-    kill -TERM -$$
+    
+    if [ -n "${availup_pid:-}" ]; then
+        kill "$availup_pid" 2>/dev/null || true
+    fi
+    
+    if [ -n "${avail_light_pid:-}" ]; then
+        kill "$avail_light_pid" 2>/dev/null || true
+    fi
 
-    # Force kill any remaining avail-light processes
-    pkill -9 -f "avail-light" || true
-
-    # Clean temporary files
+    # clean temporary files
     rm -f /tmp/health_response
-    find /tmp -name "sophon-*" -mtime +1 -delete
+    find /tmp -name "sophon-*" -mtime +1 -delete 2>/dev/null || true
 }
 
 check_memory_usage() {
@@ -491,7 +494,7 @@ main() {
         +$(printf '%*s' "100" | tr ' ' '-')+
     "
     
-    trap cleanup EXIT
+    trap 'cleanup' EXIT
 
     parse_args "$@"
     validate_requirements
