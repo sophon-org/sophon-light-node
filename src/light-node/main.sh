@@ -134,20 +134,15 @@ update_version() {
 }
 
 check_version() {
-    local auto_upgrade="${1:-false}"
     log "🔍 Checking version requirements..."
+    local auto_upgrade="${1:-false}"
+    local latest_version current_version minimum_version
     
-    # Get latest version
-    local latest_version
-    latest_version=$(get_latest_version_info | jq -r '.tag_name')
-
-    # Get current version
-    local current_version
-    current_version=$(get_current_version)
-
-    # Get minimum version
-    local minimum_version
-    minimum_version=$(get_minimum_version)
+    { 
+        latest_version=$(get_latest_version_info)
+        current_version=$(get_current_version)
+        minimum_version=$(get_minimum_version)
+    } 2>/dev/null
 
     # If current version is 0.0.0, assume it's a new installation
     if [ "$current_version" = "0.0.0" ]; then
@@ -213,18 +208,14 @@ log() {
     local message="$(date '+%Y-%m-%d %H:%M:%S') $1"
     echo "$message" | tee -a "$LOG_FILE"
     
-    # rotate logs if too large
-    if [ -f "$LOG_FILE" ] && [ $(stat -f%z "$LOG_FILE") -gt $((100*1024*1024)) ]; then
-        mv "$LOG_FILE" "$LOG_FILE.old"
+    # only check size if file exists
+    if [ -f "$LOG_FILE" ]; then
+        # log "📏 Checking log file size with OS: $OSTYPE..."
+        local current_size=$(check_log_size "$LOG_FILE")
+        if [ "$current_size" -gt $((100*1024*1024)) ]; then  # 100MB
+            mv "$LOG_FILE" "$LOG_FILE.old"
+        fi
     fi
-    # # only check size if file exists
-    # if [ -f "$LOG_FILE" ]; then
-    #     log "📏 Checking log file size with OS: $OSTYPE..."
-    #     local current_size=$(check_log_size "$LOG_FILE")
-    #     if [ "$current_size" -gt $((100*1024*1024)) ]; then  # 100MB
-    #         mv "$LOG_FILE" "$LOG_FILE.old"
-    #     fi
-    # fi
 }
 
 die() {
