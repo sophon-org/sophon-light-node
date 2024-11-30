@@ -194,6 +194,21 @@ check_version() {
 }
 
 # Function definitions
+check_log_size() {
+    local log_file="$1"
+    local size_bytes
+    
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        size_bytes=$(stat -f%z "$log_file")
+    else
+        # Linux
+        size_bytes=$(stat -c%s "$log_file")
+    fi
+    
+    echo "$size_bytes"
+}
+
 log() {
     local message="$(date '+%Y-%m-%d %H:%M:%S') $1"
     echo "$message" | tee -a "$LOG_FILE"
@@ -201,7 +216,14 @@ log() {
     # rotate logs if too large
     if [ -f "$LOG_FILE" ] && [ $(stat -f%z "$LOG_FILE") -gt $((100*1024*1024)) ]; then
         mv "$LOG_FILE" "$LOG_FILE.old"
-    fi
+    # # only check size if file exists
+    # if [ -f "$LOG_FILE" ]; then
+    #     log "📏 Checking log file size with OS: $OSTYPE..."
+    #     local current_size=$(check_log_size "$LOG_FILE")
+    #     if [ "$current_size" -gt $((100*1024*1024)) ]; then  # 100MB
+    #         mv "$LOG_FILE" "$LOG_FILE.old"
+    #     fi
+    # fi
 }
 
 die() {
@@ -473,7 +495,7 @@ check_memory_usage() {
 main() {
     log "
         +$(printf '%*s' "100" | tr ' ' '-')+
-        | 🚀 Starting SSSSSophon Light Node
+        | 🚀 Starting Sophon Light Node
         +$(printf '%*s' "100" | tr ' ' '-')+
     "
     
@@ -482,9 +504,11 @@ main() {
     parse_args "$@"
     validate_requirements
     
+    check_memory_usage
     wait_for_monitor
     check_version "$auto_upgrade" || true
     run_node
+    check_memory_usage
 
     # Version checking
     while true; do

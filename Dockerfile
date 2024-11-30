@@ -7,6 +7,7 @@ RUN apt-get update && \
         curl \
         jq \
         file \
+        coreutils \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
