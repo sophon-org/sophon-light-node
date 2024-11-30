@@ -216,6 +216,7 @@ log() {
     # rotate logs if too large
     if [ -f "$LOG_FILE" ] && [ $(stat -f%z "$LOG_FILE") -gt $((100*1024*1024)) ]; then
         mv "$LOG_FILE" "$LOG_FILE.old"
+    fi
     # # only check size if file exists
     # if [ -f "$LOG_FILE" ]; then
     #     log "📏 Checking log file size with OS: $OSTYPE..."
@@ -504,7 +505,6 @@ main() {
     parse_args "$@"
     validate_requirements
     
-    check_memory_usage
     wait_for_monitor
     check_version "$auto_upgrade" || true
     run_node
