@@ -420,11 +420,11 @@ run_node() {
     else
         echo "test2"
         log "
-            +$(printf '%*s' "100" | tr ' ' '-')+
-            | 🔔 [NOT ELIGIBLE FOR REWARDS]
-            | 🔔 You have not provided an operator address. Your Sophon Light Node will run but not participate in the rewards program.
-            +$(printf '%*s' "100" | tr ' ' '-')+
-        "
++$(printf '%*s' "100" | tr ' ' '-')+
+| 🔔 [NOT ELIGIBLE FOR REWARDS]
+| 🔔 You have not provided an operator address. Your Sophon Light Node will run but not participate in the rewards program.
++$(printf '%*s' "100" | tr ' ' '-')+
+"
         echo "test3"
     fi
 }
