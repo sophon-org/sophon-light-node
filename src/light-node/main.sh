@@ -399,6 +399,7 @@ run_node() {
 
     # Only register if operator is provided
     if [ -n "$operator" ]; then
+        echo "test"
         if [ -z "$public_domain" ]; then
             die "public-domain is required when operator is specified"
         fi
@@ -417,6 +418,7 @@ run_node() {
                 die "Registration failed - node terminated"
             }
     else
+        echo "test2"
         log "
             +$(printf '%*s' "100" | tr ' ' '-')+
             | 🔔 [NOT ELIGIBLE FOR REWARDS]
