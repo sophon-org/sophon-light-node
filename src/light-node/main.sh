@@ -337,7 +337,7 @@ run_node() {
     avail_light_pid=""
 
     cleanup_and_exit() {
-        local message="${1:-Cleanup triggered}"
+        local message="Cleanup triggered"
         log "🔍 Debug: $message"
         
         if [ -n "$availup_pid" ]; then
@@ -381,8 +381,8 @@ run_node() {
     log "🔍 Availup started with PID: $availup_pid"
     
     # Set up traps
-    trap cleanup_and_exit "Node terminated by SIGINT" SIGINT
-    trap cleanup_and_exit "Node terminated by SIGTERM" SIGTERM
+    trap cleanup_and_exit SIGINT
+    trap cleanup_and_exit SIGTERM
     trap check_process_health SIGCHLD
 
     # Wait a bit for avail-light to start
@@ -394,7 +394,7 @@ run_node() {
         log "🔍 Avail-light process found with PID: $avail_light_pid"
     else
         log "❌ Avail-light process not found"
-        cleanup_and_exit "Failed to start avail-light"
+        cleanup_and_exit
     fi
 
     # Only register if operator is provided
