@@ -1,25 +1,32 @@
 #!/bin/bash
 
-# Check if version parameter is provided
-if [ $# -ne 1 ]; then
-    echo "Error: Version number required"
-    echo "Usage: $0 <version_number>"
-    echo "Example: $0 1.2.3"
+# Get current version from Cargo.toml and increment patch version
+CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+
+if [ -z "$CURRENT_VERSION" ]; then
+    echo "Error: Could not get current version from Cargo.toml"
     exit 1
 fi
 
-VERSION=$1
-
-# Validate version format (must be X.Y.Z)
-if ! [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "Error: Version must be in format X.Y.Z (e.g., 1.2.3)"
+# Split version into parts
+IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+if [ ${#VERSION_PARTS[@]} -ne 3 ]; then
+    echo "Error: Current version is not in format X.Y.Z"
     exit 1
 fi
 
-# Check if we're in the right directory (should have Cargo.toml)
-if [ ! -f "Cargo.toml" ]; then
-    echo "Error: Cargo.toml not found"
-    echo "Please run this script from the project root directory"
+# Increment patch version
+((VERSION_PARTS[2]++))
+NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
+
+echo "Current version: $CURRENT_VERSION"
+echo "New version: $NEW_VERSION"
+
+# Ask for confirmation
+read -p "Proceed with release? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Release cancelled"
     exit 1
 fi
 
@@ -27,10 +34,10 @@ fi
 echo "Updating version in Cargo.toml..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS uses BSD sed which requires an empty string after -i
-    sed -i '' "s/^version = \".*\"/version = \"${VERSION}\"/" Cargo.toml
+    sed -i '' "s/^version = \".*\"/version = \"${NEW_VERSION}\"/" Cargo.toml
 else
     # Linux version of sed
-    sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" Cargo.toml
+    sed -i "s/^version = \".*\"/version = \"${NEW_VERSION}\"/" Cargo.toml
 fi
 
 # Build release version
@@ -60,7 +67,7 @@ cp target/release/generate_node_id release/
 # Create tarball
 echo "Creating tarball..."
 cd release/
-tar -czf "../binaries-${VERSION}.tar.gz" *
+tar -czf "../binaries-${NEW_VERSION}.tar.gz" *
 cd ..
 
 # Check if gh command is available
@@ -71,15 +78,12 @@ if ! command -v gh &> /dev/null; then
 fi
 
 # Create GitHub release
-echo "Creating GitHub release v${VERSION}..."
-gh release create "v${VERSION}" \
-    --title "Version ${VERSION}" \
+echo "Creating GitHub release v${NEW_VERSION}..."
+gh release create "v${NEW_VERSION}" \
+    --title "Version ${NEW_VERSION}" \
     --notes "" \
     --prerelease=false \
     --generate-notes=false \
-    "binaries-${VERSION}.tar.gz"
+    "binaries-${NEW_VERSION}.tar.gz"
 
-# Remove tar file
-# rm "sophon-light-node-${VERSION}.tar.gz"
-
-echo "Release v${VERSION} created successfully!"
+echo "Release v${NEW_VERSION} created successfully!"

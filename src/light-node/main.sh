@@ -7,6 +7,8 @@ readonly DEFAULT_MONITOR_URL="https://monitor-stg.sophon.xyz"
 readonly DEFAULT_VERSION_CHECKER_INTERVAL=86400  # 1 day
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/src/light-node/config.yml"
+readonly LOG_FILE="$HOME/sophon-node.log"
+readonly MAX_LOG_SIZE=100M
 
 # Version checks
 get_latest_version_info() {
@@ -131,20 +133,15 @@ update_version() {
 }
 
 check_version() {
-    local auto_upgrade="${1:-false}"
     log "🔍 Checking version requirements..."
+    local auto_upgrade="${1:-false}"
+    local latest_version current_version minimum_version
     
-    # Get latest version
-    local latest_version
-    latest_version=$(get_latest_version_info | jq -r '.tag_name')
-
-    # Get current version
-    local current_version
-    current_version=$(get_current_version)
-
-    # Get minimum version
-    local minimum_version
-    minimum_version=$(get_minimum_version)
+    { 
+        latest_version=$(get_latest_version_info)
+        current_version=$(get_current_version)
+        minimum_version=$(get_minimum_version)
+    } 2>/dev/null
 
     # If current version is 0.0.0, assume it's a new installation
     if [ "$current_version" = "0.0.0" ]; then
@@ -155,12 +152,7 @@ check_version() {
     # Check if update is available
     if [ $(compare_versions $current_version $minimum_version) -lt 0 ]; then
         if [ "$auto_upgrade" = "true" ]; then
-            log "
-                +$(printf '%*s' "100" | tr ' ' '-')+
-                | 🔔 [VERSION OUTDATED]
-                | 🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...
-                +$(printf '%*s' "100" | tr ' ' '-')+
-            "
+            log "$(box "🔔 [VERSION OUTDATED]" "🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...")"
             if update_version "$latest_version"; then
                 return 0  # Signal to restart
             else
@@ -172,15 +164,10 @@ check_version() {
             if [ ! $(compare_versions "$current_version" "$latest_version") -lt 0 ]; then
                 die "Current version ($current_version) is below minimum required version ($minimum_version). Node process will be terminated."
             else
-                log "
-                    +$(printf '%*s' "100" | tr ' ' '-')+
-                    | 🔔 [VERSION OUTDATED]
-                    | 🔔 Minimum required version: $minimum_version
+                log "$(box "🔔 [VERSION OUTDATED]" "🔔 Minimum required version: $minimum_version
                     | 🔔 Current version: $current_version
                     | 🔔 Latest version: $latest_version
-                    | 🔔 Consider upgrading or use --auto-upgrade true to enable automatic updates. If you're using the Docker image, you can set \`AUTO_UPGRADE=true\` in your environment.
-                    +$(printf '%*s' "100" | tr ' ' '-')+
-                "
+                    | 🔔 Consider upgrading or use --auto-upgrade true to enable automatic updates.")"
                 return 1
             fi
         fi
@@ -191,8 +178,56 @@ check_version() {
 }
 
 # Function definitions
+check_log_size() {
+    local log_file="$1"
+    local size_bytes
+    
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        size_bytes=$(stat -f%z "$log_file")
+    else
+        # Linux
+        size_bytes=$(stat -c%s "$log_file")
+    fi
+    
+    echo "$size_bytes"
+}
+
+box() {
+    local title="$1"
+    local message="${2:-}"
+    
+    if [ -z "$message" ]; then
+        # only print title
+        cat << EOF
+
++$(printf '%*s' "100" | tr ' ' '-')+
+| $title
++$(printf '%*s' "100" | tr ' ' '-')+
+EOF
+    else
+        # print title and message
+        cat << EOF
+
++$(printf '%*s' "100" | tr ' ' '-')+
+| $title
+| $message
++$(printf '%*s' "100" | tr ' ' '-')+
+EOF
+    fi
+}
+
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+    local message="$(date '+%Y-%m-%d %H:%M:%S') $1"
+    echo -e "$message" | tee -a "$LOG_FILE"
+    
+    # only check size if file exists
+    if [ -f "$LOG_FILE" ]; then
+        local current_size=$(check_log_size "$LOG_FILE")
+        if [ "$current_size" -gt $((100*1024*1024)) ]; then  # 100MB
+            mv "$LOG_FILE" "$LOG_FILE.old"
+        fi
+    fi
 }
 
 die() {
@@ -318,14 +353,14 @@ run_node() {
         local message="$1"
         log "🔍 Debug: Cleanup triggered with message: $message"
         
-        if [ -n "$availup_pid" ] && ps -p $availup_pid > /dev/null 2>&1; then
+        if [ -n "$availup_pid" ]; then
             log "🔍 Debug: Killing availup process $availup_pid"
-            kill $availup_pid 2>/dev/null || log "🔍 Debug: Kill failed"
+            kill "$availup_pid" 2>/dev/null || true
         fi
 
-        if [ -n "$avail_light_pid" ] && ps -p $avail_light_pid > /dev/null 2>&1; then
+        if [ -n "$avail_light_pid" ]; then
             log "🔍 Debug: Killing avail-light process $avail_light_pid"
-            kill $avail_light_pid 2>/dev/null || log "🔍 Debug: Kill failed"
+            kill "$avail_light_pid" 2>/dev/null || true
         fi
         exit 1
     }
@@ -372,7 +407,7 @@ run_node() {
         log "🔍 Avail-light process found with PID: $avail_light_pid"
     else
         log "❌ Avail-light process not found"
-        cleanup_and_exit "Failed to start avail-light"
+        cleanup_and_exit
     fi
 
     # Only register if operator is provided
@@ -395,12 +430,7 @@ run_node() {
                 die "Registration failed - node terminated"
             }
     else
-        log "
-            +$(printf '%*s' "100" | tr ' ' '-')+
-            | 🔔 [NOT ELIGIBLE FOR REWARDS]
-            | 🔔 You have not provided an operator address. Your Sophon Light Node will run but not participate in the rewards program.
-            +$(printf '%*s' "100" | tr ' ' '-')+
-        "
+        log "$(box "🔔 [NOT ELIGIBLE FOR REWARDS]" "🔔 You have not provided an operator address. Your Sophon Light Node will run but not participate in the rewards program.")"
     fi
 }
 
@@ -438,31 +468,53 @@ create_avail_config() {
 
 cleanup() {
     log "🧹 Cleaning up..."
+    
+    if [ -n "${availup_pid:-}" ]; then
+        kill "$availup_pid" 2>/dev/null || true
+    fi
+    
+    if [ -n "${avail_light_pid:-}" ]; then
+        kill "$avail_light_pid" 2>/dev/null || true
+    fi
+
+    # clean temporary files
     rm -f /tmp/health_response
-    pkill -f "avail-light" || true
+    find /tmp -name "sophon-*" -mtime +1 -delete 2>/dev/null || true
+}
+
+check_memory_usage() {
+    local max_memory_mb=30000  # 30GB
+    local current_memory=$(ps -o rss= -p $avail_light_pid | awk '{print $1/1024}')
+    log "📊 Current memory usage: ${current_memory%.*}MB"
+    
+    if [ "${current_memory%.*}" -gt "$max_memory_mb" ]; then
+        log "⚠️ Memory usage exceeded ${max_memory_mb}MB. Initiating graceful restart..."
+        cleanup
+        exec "$0" "$@"
+    fi
 }
 
 main() {
-    log "
-        +$(printf '%*s' "100" | tr ' ' '-')+
-        | 🚀 Starting Sophon Light Node
-        +$(printf '%*s' "100" | tr ' ' '-')+
-    "
+    log "$(box "🚀 Starting Sophon Light Node")"
     
     trap cleanup EXIT
-    
+
     parse_args "$@"
     validate_requirements
     
     wait_for_monitor
     check_version "$auto_upgrade" || true
     run_node
+    check_memory_usage
 
     # Version checking
     while true; do
         log "💤 Next version check in $VERSION_CHECKER_INTERVAL seconds..."
+
         sleep "$VERSION_CHECKER_INTERVAL"
         
+        check_memory_usage
+
         if check_version "$auto_upgrade" && [ "$?" -eq 0 ]; then
             log "🔄 Version update required, restarting node..."
             cleanup
