@@ -7,8 +7,6 @@ readonly DEFAULT_MONITOR_URL="https://monitor-stg.sophon.xyz"
 readonly DEFAULT_VERSION_CHECKER_INTERVAL=86400  # 1 day
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/src/light-node/config.yml"
-readonly LOG_FILE="$HOME/sophon-node.log"
-readonly MAX_LOG_SIZE=100M
 
 # Version checks
 get_latest_version_info() {
@@ -178,21 +176,6 @@ check_version() {
 }
 
 # Function definitions
-check_log_size() {
-    local log_file="$1"
-    local size_bytes
-    
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS
-        size_bytes=$(stat -f%z "$log_file")
-    else
-        # Linux
-        size_bytes=$(stat -c%s "$log_file")
-    fi
-    
-    echo "$size_bytes"
-}
-
 box() {
     local title="$1"
     local message="${2:-}"
@@ -219,15 +202,7 @@ EOF
 
 log() {
     local message="$(date '+%Y-%m-%d %H:%M:%S') $1"
-    echo -e "$message" | tee -a "$LOG_FILE"
-    
-    # only check size if file exists
-    if [ -f "$LOG_FILE" ]; then
-        local current_size=$(check_log_size "$LOG_FILE")
-        if [ "$current_size" -gt $((100*1024*1024)) ]; then  # 100MB
-            mv "$LOG_FILE" "$LOG_FILE.old"
-        fi
-    fi
+    echo -e "$message"
 }
 
 die() {
@@ -482,19 +457,30 @@ cleanup() {
     find /tmp -name "sophon-*" -mtime +1 -delete 2>/dev/null || true
 }
 
-check_memory_usage() {
-    local max_memory_mb=30000  # 30GB
-    local current_memory=$(ps -o rss= -p $avail_light_pid | awk '{print $1/1024}')
-    log "📊 Current memory usage: ${current_memory%.*}MB"
-    
-    if [ "${current_memory%.*}" -gt "$max_memory_mb" ]; then
-        log "⚠️ Memory usage exceeded ${max_memory_mb}MB. Initiating graceful restart..."
-        cleanup
-        exec "$0" "$@"
+check_memory_details() {
+    if [ -z "$avail_light_pid" ]; then
+        return 1
     fi
+    
+    local stats=$(ps -p "$avail_light_pid" -o rss=,vsz=,%mem=)
+    read rss vsz mem <<< "$stats"
+    
+    echo "$(date '+%Y-%m-%d %H:%M:%S') RSS:${rss}KB VSZ:${vsz}KB MEM:${mem}%" >> memory_trends.log
+    
+    if [ "$previous_rss" -gt 0 ] && [ "$rss" -gt "$previous_rss" ]; then
+        log "🔔 Memory increased: ${previous_rss}KB -> ${rss}KB (Δ=$((rss - previous_rss))KB)"
+    fi
+    previous_rss=$rss
 }
 
+check_process_memory() {
+   pgrep -f "avail-light" | xargs ps -o rss= -p | awk '{printf "%.2f", $1/1024}'
+}
+
+declare -i previous_rss=0
+
 main() {
+
     log "$(box "🚀 Starting Sophon Light Node")"
     
     trap cleanup EXIT
@@ -505,15 +491,21 @@ main() {
     wait_for_monitor
     check_version "$auto_upgrade" || true
     run_node
-    check_memory_usage
-
+    
     # Version checking
+    previous=0
     while true; do
         log "💤 Next version check in $VERSION_CHECKER_INTERVAL seconds..."
 
         sleep "$VERSION_CHECKER_INTERVAL"
         
-        check_memory_usage
+        # check memory usage
+        current=$(check_process_memory)
+        if [ -n "$current" ] && [ $(echo "$previous > 0" | bc) -eq 1 ]; then
+            diff=$(echo "$current - $previous" | bc)
+            log "📊 RSS: ${current}MB (Δ${diff}MB)"
+        fi
+        previous=$current
 
         if check_version "$auto_upgrade" && [ "$?" -eq 0 ]; then
             log "🔄 Version update required, restarting node..."
