@@ -147,32 +147,33 @@ check_version() {
         return 1
     fi
     
-    # Check if update is available
+    # If below minimum version - die
     if [ $(compare_versions $current_version $minimum_version) -lt 0 ]; then
-        if [ "$auto_upgrade" = "true" ]; then
-            log "$(box "🔔 [VERSION OUTDATED]" "🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...")"
-            if update_version "$latest_version"; then
-                return 0  # Signal to restart
-            else
-                log "❌ Update failed, continuing with current version."
-                return 1
-            fi
-        else
-            # Check minimum version requirement
-            if [ ! $(compare_versions "$current_version" "$latest_version") -lt 0 ]; then
-                die "Current version ($current_version) is below minimum required version ($minimum_version). Node process will be terminated."
-            else
-                log "$(box "🔔 [VERSION OUTDATED]" "🔔 Minimum required version: $minimum_version
-                    | 🔔 Current version: $current_version
-                    | 🔔 Latest version: $latest_version
-                    | 🔔 Consider upgrading or use --auto-upgrade true to enable automatic updates.")"
-                return 1
-            fi
-        fi
-    else
-        log "✅ Running latest version: $current_version"
-        return 1
+        die "Current version ($current_version) is below minimum required version ($minimum_version). Node process will be terminated."
     fi
+
+
+    # Check if update is available
+    if [ $(compare_versions $current_version $latest_version) -lt 0 ]; then
+       if [ "$auto_upgrade" = "true" ]; then
+           log "$(box "🔔 [VERSION OUTDATED]" "🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...")"
+           if update_version "$latest_version"; then
+               return 0  # Signal to restart
+           else
+               log "❌ Update failed, continuing with current version."
+               return 1
+           fi
+       else
+           log "$(box "🔔 [VERSION OUTDATED]" "🔔 Minimum required version: $minimum_version
+            | 🔔 Current version: $current_version
+            | 🔔 Latest version: $latest_version
+            | 🔔 Consider upgrading or use --auto-upgrade true to enable automatic updates.")"
+           return 1
+       fi
+   fi
+
+   log "✅ Running latest version: $current_version"
+   return 1
 }
 
 # Function definitions
