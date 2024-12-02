@@ -8,6 +8,7 @@ RUN apt-get update && \
         jq \
         file \
         coreutils \
+        bc \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
