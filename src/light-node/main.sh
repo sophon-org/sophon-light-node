@@ -136,7 +136,7 @@ check_version() {
     local latest_version current_version minimum_version
     
     { 
-        latest_version=$(get_latest_version_info)
+        latest_version=$(get_latest_version_info | jq -r '.tag_name')
         current_version=$(get_current_version)
         minimum_version=$(get_minimum_version)
     } 2>/dev/null
@@ -165,9 +165,9 @@ check_version() {
            fi
        else
            log "$(box "🔔 [VERSION OUTDATED]" "🔔 Minimum required version: $minimum_version
-            | 🔔 Current version: $current_version
-            | 🔔 Latest version: $latest_version
-            | 🔔 Consider upgrading or use --auto-upgrade true to enable automatic updates.")"
+| 🔔 Current version: $current_version
+| 🔔 Latest version: $latest_version
+| 🔔 Consider upgrading or use --auto-upgrade true to enable automatic updates.")"
            return 1
        fi
    fi
