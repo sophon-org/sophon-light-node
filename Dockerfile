@@ -1,6 +1,11 @@
 ARG ENV=prod
-
 FROM ubuntu:latest
+
+# Re-declare the ARG after FROM to use in RUN commands
+ARG ENV
+
+# Make ARG available as ENV var for runtime
+ENV ENV=${ENV}
 
 # Install minimal dependencies
 RUN apt-get update && \
@@ -15,21 +20,12 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Set default monitor URL
-ENV PROD_MONITOR_URL="https://monitor.sophon.xyz"
-ENV STG_MONITOR_URL="https://monitor.sophon.xyz"
-
-
-# Download release based on environment
 RUN set -x && \
     GITHUB_BASE_URL="https://api.github.com/repos/sophon-org/sophon-light-node/releases" && \
-    : "${ENV:=prod}" && \
-    if [ "$ENV" = "stg" ]; then \
-        MONITOR_URL="${MONITOR_URL:-STG_MONITOR_URL}"; \
+    if [ "${ENV}" = "stg" ]; then \
         RELEASE_INFO=$(curl -s ${GITHUB_BASE_URL} | jq '[.[] | select(.prerelease == true)][0]'); \
     else \
-        MONITOR_URL="${MONITOR_URL:-$PROD_MONITOR_URL}"; \
-        RELEASE_INFO=$(curl -s ${GITHUB_BASE_URL} | jq '[.[] | select(.prerelease == false)][0]'); \
+        RELEASE_INFO=$(curl -s ${GITHUB_BASE_URL}/latest); \
     fi && \
     BINARY_FILE_ID=$(echo "${RELEASE_INFO}" | jq -r '.assets[0] | select(.name | endswith("tar.gz")) | .id') && \
     BINARY_FILE_NAME=$(echo "${RELEASE_INFO}" | jq -r '.assets[0] | select(.name | endswith("tar.gz")) | .name') && \
@@ -39,4 +35,4 @@ RUN set -x && \
     chmod +x sophon-node
 
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["/app/sophon-node ${OPERATOR_ADDRESS:+--operator $OPERATOR_ADDRESS} ${DESTINATION_ADDRESS:+--destination $DESTINATION_ADDRESS} ${PERCENTAGE:+--percentage $PERCENTAGE} ${IDENTITY:+--identity $IDENTITY} ${PUBLIC_DOMAIN:+--public-domain $PUBLIC_DOMAIN} ${MONITOR_URL:+--monitor-url $MONITOR_URL} ${NETWORK:+--network $NETWORK} ${AUTO_UPGRADE:+--auto-upgrade $AUTO_UPGRADE}"]
+CMD ["/app/sophon-node ${ENV:+--env $ENV} ${OPERATOR_ADDRESS:+--operator $OPERATOR_ADDRESS} ${DESTINATION_ADDRESS:+--destination $DESTINATION_ADDRESS} ${PERCENTAGE:+--percentage $PERCENTAGE} ${IDENTITY:+--identity $IDENTITY} ${PUBLIC_DOMAIN:+--public-domain $PUBLIC_DOMAIN} ${MONITOR_URL:+--monitor-url $MONITOR_URL} ${NETWORK:+--network $NETWORK} ${AUTO_UPGRADE:+--auto-upgrade $AUTO_UPGRADE}"]
