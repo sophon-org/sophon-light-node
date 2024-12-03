@@ -47,9 +47,17 @@ get_current_version() {
 }
 
 compare_versions() {
-    if [[ "$1" == "$2" ]]; then
+    local v1=$(echo "$1" | sed 's/^v//; s/-.*//')  # Normalize version (remove "v" and pre-release info)
+    local v2=$(echo "$2" | sed 's/^v//; s/-.*//')
+
+    if [[ -z "$v1" || -z "$v2" ]]; then
+        echo "Error: Missing version input" >&2
+        return 1
+    fi
+
+    if [[ "$v1" == "$v2" ]]; then
         echo 0
-    elif [[ "$(echo -e "$1\n$2" | sort -V | head -n1)" == "$1" ]]; then
+    elif [[ "$(echo -e "$v1\n$v2" | sort -V | head -n1)" == "$v1" ]]; then
         echo -1  # v1 is lower
     else
         echo 1   # v1 is higher
