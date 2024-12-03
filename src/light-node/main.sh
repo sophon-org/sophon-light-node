@@ -10,7 +10,22 @@ readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-n
 
 # Version checks
 get_latest_version_info() {
-    curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    if [ "${ENV:-}" = "stg" ]; then
+        result=$(curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases |
+            jq -r 'first(.[] | select(.tag_name | contains("-stg")))')
+        if [ -z "$result" ]; then
+            echo "No staging release found."
+            exit 1
+        fi
+        echo "$result"
+    else
+        curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    fi
+}
+
+# Get latest version from Github releases
+get_latest_version() {
+    echo $(get_latest_version_info | jq -r '.tag_name')
 }
 
 # Get minimum version from config
@@ -142,9 +157,9 @@ check_version() {
     log "🔍 Checking version requirements..."
     local auto_upgrade="${1:-false}"
     local latest_version current_version minimum_version
-    
     { 
-        latest_version=$(get_latest_version_info | jq -r '.tag_name')
+
+        latest_version=$(get_latest_version)
         current_version=$(get_current_version)
         minimum_version=$(get_minimum_version)
     } 2>/dev/null
