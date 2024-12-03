@@ -1,47 +1,130 @@
-name: Docker
+name: Release & Dockerize
 
 on:
-  workflow_run:
-    workflows: ['Release']
-    types: [completed]
-    branches:
-      - main
+ push:
+   branches: [main, staging]
 
 jobs:
+ build-and-release:
+   runs-on: ubuntu-latest
+   steps:
+   - uses: actions/checkout@v3
+     with:
+       fetch-depth: 0
+   
+   - uses: actions-rs/toolchain@v1
+     with:
+       toolchain: stable
+       override: true
+       
+   - id: previous_version
+     run: |
+      CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+      if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+        IFS='.'
+        read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+        ((VERSION_PARTS[2]++))
+        NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
+      else
+        BUILD_NUMBER=$(date +%s)
+        NEW_VERSION="${CURRENT_VERSION}.${BUILD_NUMBER}"
+      fi
+      echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+      echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
-  build-and-push:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Check out the code
-        uses: actions/checkout@v3
+   - name: Update version in Cargo.toml
+     if: github.ref == 'refs/heads/main'
+     run: |
+       VERSION=${{ steps.previous_version.outputs.new_version }}
+       sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+       git config user.name "GitHub Actions"
+       git config user.email "github-actions@github.com"
+       git add Cargo.toml
+       git commit -m "Update Cargo.toml version to $VERSION"
+       git push
 
-      - name: Get version from Cargo.toml
-        id: version
-        run: |
-          cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version'
-          VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
-          echo "::set-output name=version::$VERSION"
-          
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+   - name: Set environment
+     id: env
+     run: |
+       if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+         echo "env=prod" >> $GITHUB_OUTPUT
+         echo "prerelease=false" >> $GITHUB_OUTPUT
+       else
+         echo "env=staging" >> $GITHUB_OUTPUT
+         echo "prerelease=true" >> $GITHUB_OUTPUT
+       fi
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+   - name: Build release
+     run: cargo build --release
+       
+   - name: Check binaries
+     run: |
+       if [ ! -f "target/release/sophon-node" ] || [ ! -f "target/release/generate_node_id" ]; then
+           echo "Error: Required binaries not found in target/release/"
+           exit 1
+       fi
+       
+   - name: Create tarball
+     run: |
+       VERSION=${{ steps.previous_version.outputs.new_version }}
+       ENV=${{ steps.env.outputs.env }}
+       mkdir -p release
+       cp target/release/sophon-node release/
+       cp target/release/generate_node_id release/
+       cd release/
+       tar -czf "../binaries-$VERSION-$ENV.tar.gz" *
+       cd ..
+       
+   - name: Create Git Tag
+     run: |
+      VERSION=${{ steps.previous_version.outputs.new_version }}
+      ENV=${{ steps.env.outputs.env }}
+      git config user.name "GitHub Actions"
+      git config user.email "github-actions@github.com"
+      git tag -a "v$VERSION" -m "Release v$VERSION ($ENV)"
+      git push origin "v$VERSION"
 
-      - name: Build Docker Image
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          docker build --platform linux/amd64 -t sophonhub/sophon-light-node:${{ steps.version.outputs.version }} .
+   - name: Create Release
+     id: create_release
+     uses: actions/create-release@v1
+     env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     with:
+       tag_name: v${{ steps.previous_version.outputs.new_version }}-${{ steps.env.outputs.env }}
+       release_name: Release ${{ steps.previous_version.outputs.new_version }} (${{ steps.env.outputs.env }})
+       draft: false
+       prerelease: ${{ steps.env.outputs.prerelease }}
+       
+   - name: Upload Release Asset
+     uses: actions/upload-release-asset@v1
+     env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     with:
+       upload_url: ${{ steps.create_release.outputs.upload_url }}
+       asset_path: ./binaries-${{ steps.previous_version.outputs.new_version }}-${{ steps.env.outputs.env }}.tar.gz
+       asset_name: binaries-${{ steps.previous_version.outputs.new_version }}-${{ steps.env.outputs.env }}.tar.gz
+       asset_content_type: application/gzip
 
-      - name: Tag Docker Image
-        run: |
-          docker tag sophonhub/sophon-light-node:${{ steps.version.outputs.version }} sophonhub/sophon-light-node:latest
+   - uses: docker/login-action@v2
+     with:
+       username: ${{ secrets.DOCKER_USERNAME }}
+       password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker Image
-        run: |
-          docker push sophonhub/sophon-light-node:${{ steps.version.outputs.version }}
-          docker push sophonhub/sophon-light-node:latest
+   - uses: docker/setup-buildx-action@v2
+
+   - name: Build and Push to Dockerhub
+     run: |
+      VERSION=${{ steps.previous_version.outputs.new_version }}
+      ENV=${{ steps.env.outputs.env }}
+      
+      if [[ "$ENV" == "prod" ]]; then
+        docker build --build-arg ENV=$ENV --platform linux/amd64 -t sophonhub/sophon-light-node:$VERSION .
+        docker tag sophonhub/sophon-light-node:$VERSION sophonhub/sophon-light-node:latest
+        docker push sophonhub/sophon-light-node:$VERSION
+        docker push sophonhub/sophon-light-node:latest
+      else
+        docker build --build-arg ENV=$ENV --platform linux/amd64 -t sophonhub/sophon-light-node:$VERSION-$ENV .
+        docker tag sophonhub/sophon-light-node:$VERSION-$ENV sophonhub/sophon-light-node:$ENV
+        docker push sophonhub/sophon-light-node:$VERSION-$ENV
+        docker push sophonhub/sophon-light-node:latest-$ENV
+      fi
