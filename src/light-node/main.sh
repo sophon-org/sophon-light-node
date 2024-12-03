@@ -82,11 +82,12 @@ compare_versions() {
 }
 
 update_version() {
-    local latest_version="$1"
+    local env="$1"
+    local latest_version="$2"
     log "📥 Downloading version $latest_version..."
 
     # Get release info
-    local release_info=$(get_latest_version_info)
+    local release_info=$(get_latest_version_info $env)
     local asset_url=$(echo "$release_info" | jq -r '.assets[0].url')
     local binary_name=$(echo "$release_info" | jq -r '.assets[0].name')
     
@@ -182,7 +183,7 @@ check_version() {
     if [ $(compare_versions $current_version $latest_version) -lt 0 ]; then
        if [ "$auto_upgrade" = "true" ]; then
            log "$(box "🔔 [VERSION OUTDATED]" "🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...")"
-           if update_version "$latest_version"; then
+           if update_version "$env" "$latest_version"; then
                return 0  # Signal to restart
            else
                log "❌ Update failed, continuing with current version."
