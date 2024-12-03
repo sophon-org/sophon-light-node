@@ -5,12 +5,28 @@ set -euo pipefail
 readonly DEFAULT_NETWORK="mainnet"
 readonly DEFAULT_MONITOR_URL="https://monitor.sophon.xyz"
 readonly DEFAULT_VERSION_CHECKER_INTERVAL=86400  # 1 day
+readonly DEFAULT_ENV="prod"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/src/light-node/config.yml"
 
 # Version checks
 get_latest_version_info() {
-    curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    if [ "${ENV:-}" = "stg" ]; then
+        result=$(curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases |
+            jq '[.[] | select(.prerelease == true)][0]')
+        if [ -z "$result" ]; then
+            echo "No staging release found."
+            exit 1
+        fi
+        echo "$result"
+    else
+        curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    fi
+}
+
+# Get latest version from Github releases
+get_latest_version() {
+    echo $(get_latest_version_info | jq -r '.tag_name')
 }
 
 # Get minimum version from config
@@ -142,9 +158,9 @@ check_version() {
     log "🔍 Checking version requirements..."
     local auto_upgrade="${1:-false}"
     local latest_version current_version minimum_version
-    
     { 
-        latest_version=$(get_latest_version_info | jq -r '.tag_name')
+
+        latest_version=$(get_latest_version)
         current_version=$(get_current_version)
         minimum_version=$(get_minimum_version)
     } 2>/dev/null
@@ -246,6 +262,7 @@ parse_args() {
     identity="$HOME/.avail/identity/identity.toml"
     auto_upgrade="false" 
     VERSION_CHECKER_INTERVAL="${VERSION_CHECKER_INTERVAL:-$DEFAULT_VERSION_CHECKER_INTERVAL}"
+    ENV="${ENV:-$DEFAULT_ENV}"
 
     # Parse command line arguments
     while [ $# -gt 0 ]; do
