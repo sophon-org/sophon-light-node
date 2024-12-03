@@ -3,14 +3,31 @@ set -euo pipefail
 
 # Constants
 readonly DEFAULT_NETWORK="mainnet"
-readonly DEFAULT_MONITOR_URL="https://monitor.sophon.xyz"
+readonly PROD_MONITOR_URL="https://monitor.sophon.xyz"
+readonly STG_MONITOR_URL="https://monitor-stg.sophon.xyz"
 readonly DEFAULT_VERSION_CHECKER_INTERVAL=86400  # 1 day
+readonly DEFAULT_ENV="prod"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/src/light-node/config.yml"
 
 # Version checks
 get_latest_version_info() {
-    curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    if [ "${ENV:-}" = "stg" ]; then
+        result=$(curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases |
+            jq '[.[] | select(.prerelease == true)][0]')
+        if [ -z "$result" ]; then
+            echo "No staging release found."
+            exit 1
+        fi
+        echo "$result"
+    else
+        curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    fi
+}
+
+# Get latest version from Github releases
+get_latest_version() {
+    echo $(get_latest_version_info | jq -r '.tag_name')
 }
 
 # Get minimum version from config
@@ -142,9 +159,9 @@ check_version() {
     log "🔍 Checking version requirements..."
     local auto_upgrade="${1:-false}"
     local latest_version current_version minimum_version
-    
     { 
-        latest_version=$(get_latest_version_info | jq -r '.tag_name')
+
+        latest_version=$(get_latest_version)
         current_version=$(get_current_version)
         minimum_version=$(get_minimum_version)
     } 2>/dev/null
@@ -237,8 +254,8 @@ validate_requirements() {
 
 parse_args() {
     # Initialize variables with defaults
+    env="$DEFAULT_ENV"
     network="$DEFAULT_NETWORK"
-    monitor_url="$DEFAULT_MONITOR_URL"
     operator=""
     destination=""
     percentage=""
@@ -282,11 +299,27 @@ parse_args() {
                 auto_upgrade="$2"
                 shift 2
                 ;;
+            --env)
+                env="$2"
+                shift 2
+                ;;
             *)
                 die "Unknown option: $1"
                 ;;
         esac
     done
+
+    # if --monitor-url is not passed, set monitor_url based on environment variable
+    if [ -z "${monitor_url:-}" ]; then
+        case "$env" in
+            stg)
+                monitor_url="$STG_MONITOR_URL"
+                ;;
+            *)
+                monitor_url="$PROD_MONITOR_URL"
+                ;;
+        esac
+    fi
 
     # Export variables for child scripts
     export network monitor_url operator destination percentage public_domain identity auto_upgrade
