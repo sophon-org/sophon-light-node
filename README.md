@@ -34,6 +34,9 @@ More info on the following env variables on [Environment variables](#environment
 # pull docker image
 docker pull --platform linux/amd64 sophonhub/sophon-light-node
 
+# if you want to use the staging environment
+docker pull --platform linux/amd64 sophonhub/sophon-light-node:latest-stg
+
 # run node
 docker run -d --name sophon-light-node sophonhub/sophon-light-node
 

@@ -3,14 +3,31 @@ set -euo pipefail
 
 # Constants
 readonly DEFAULT_NETWORK="mainnet"
-readonly DEFAULT_MONITOR_URL="https://monitor.sophon.xyz"
+readonly PROD_MONITOR_URL="https://monitor.sophon.xyz"
+readonly STG_MONITOR_URL="https://monitor-stg.sophon.xyz"
 readonly DEFAULT_VERSION_CHECKER_INTERVAL=86400  # 1 day
+readonly DEFAULT_ENV="prod"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly CONFIG_URL="https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/src/light-node/config.yml"
 
 # Version checks
 get_latest_version_info() {
-    curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    if [ $1 = "stg" ]; then
+        result=$(curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases |
+            jq '[.[] | select(.prerelease == true)][0]')
+        if [ -z "$result" ]; then
+            echo "No staging release found."
+            exit 1
+        fi
+        echo "$result"
+    else
+        curl -s -H "Cache-Control: no-cache" https://api.github.com/repos/sophon-org/sophon-light-node/releases/latest
+    fi
+}
+
+# Get latest version from Github releases
+get_latest_version() {
+    echo $(get_latest_version_info $1 | jq -r '.tag_name')
 }
 
 # Get minimum version from config
@@ -47,9 +64,17 @@ get_current_version() {
 }
 
 compare_versions() {
-    if [[ "$1" == "$2" ]]; then
+    local v1=$(echo "$1" | sed 's/^v//; s/-.*//')  # Normalize version (remove "v" and pre-release info)
+    local v2=$(echo "$2" | sed 's/^v//; s/-.*//')
+
+    if [[ -z "$v1" || -z "$v2" ]]; then
+        echo "Error: Missing version input" >&2
+        return 1
+    fi
+
+    if [[ "$v1" == "$v2" ]]; then
         echo 0
-    elif [[ "$(echo -e "$1\n$2" | sort -V | head -n1)" == "$1" ]]; then
+    elif [[ "$(echo -e "$v1\n$v2" | sort -V | head -n1)" == "$v1" ]]; then
         echo -1  # v1 is lower
     else
         echo 1   # v1 is higher
@@ -57,11 +82,12 @@ compare_versions() {
 }
 
 update_version() {
-    local latest_version="$1"
+    local env="$1"
+    local latest_version="$2"
     log "📥 Downloading version $latest_version..."
 
     # Get release info
-    local release_info=$(get_latest_version_info)
+    local release_info=$(get_latest_version_info $env)
     local asset_url=$(echo "$release_info" | jq -r '.assets[0].url')
     local binary_name=$(echo "$release_info" | jq -r '.assets[0].name')
     
@@ -132,11 +158,18 @@ update_version() {
 
 check_version() {
     log "🔍 Checking version requirements..."
-    local auto_upgrade="${1:-false}"
+    local env="$1"
+    local auto_upgrade="${2:-false}"
+
+    # If staging environment, we skip the version check
+    if [ "$env" = "stg" ]; then
+        log "🔍 Skipping version check for staging environment"
+        return 1
+    fi
+
     local latest_version current_version minimum_version
-    
     { 
-        latest_version=$(get_latest_version_info | jq -r '.tag_name')
+        latest_version=$(get_latest_version $env)
         current_version=$(get_current_version)
         minimum_version=$(get_minimum_version)
     } 2>/dev/null
@@ -152,12 +185,11 @@ check_version() {
         die "Current version ($current_version) is below minimum required version ($minimum_version). Node process will be terminated."
     fi
 
-
     # Check if update is available
     if [ $(compare_versions $current_version $latest_version) -lt 0 ]; then
        if [ "$auto_upgrade" = "true" ]; then
            log "$(box "🔔 [VERSION OUTDATED]" "🔄 Auto-upgrade enabled. Upgrading from $current_version to $latest_version...")"
-           if update_version "$latest_version"; then
+           if update_version "$env" "$latest_version"; then
                return 0  # Signal to restart
            else
                log "❌ Update failed, continuing with current version."
@@ -229,8 +261,8 @@ validate_requirements() {
 
 parse_args() {
     # Initialize variables with defaults
+    env="$DEFAULT_ENV"
     network="$DEFAULT_NETWORK"
-    monitor_url="$DEFAULT_MONITOR_URL"
     operator=""
     destination=""
     percentage=""
@@ -274,14 +306,30 @@ parse_args() {
                 auto_upgrade="$2"
                 shift 2
                 ;;
+            --env)
+                env="$2"
+                shift 2
+                ;;
             *)
                 die "Unknown option: $1"
                 ;;
         esac
     done
 
+    # if --monitor-url is not passed, set monitor_url based on environment variable
+    if [ -z "${monitor_url:-}" ]; then
+        case "$env" in
+            stg)
+                monitor_url="$STG_MONITOR_URL"
+                ;;
+            *)
+                monitor_url="$PROD_MONITOR_URL"
+                ;;
+        esac
+    fi
+
     # Export variables for child scripts
-    export network monitor_url operator destination percentage public_domain identity auto_upgrade
+    export env network monitor_url operator destination percentage public_domain identity auto_upgrade
 }
 
 wait_for_node() {
@@ -490,7 +538,7 @@ main() {
     validate_requirements
     
     wait_for_monitor
-    check_version "$auto_upgrade" || true
+    check_version "$env" "$auto_upgrade" || true
     run_node
     
     # Version checking
@@ -508,7 +556,7 @@ main() {
         fi
         previous=$current
 
-        if check_version "$auto_upgrade" && [ "$?" -eq 0 ]; then
+        if check_version "$env" "$auto_upgrade" && [ "$?" -eq 0 ]; then
             log "🔄 Version update required, restarting node..."
             cleanup
             exec "$0" "$@"
