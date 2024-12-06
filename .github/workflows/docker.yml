@@ -118,7 +118,7 @@ jobs:
       MONITOR_ENV=${{ steps.monitor_env.outputs.monitor_env }}
       
       if [[ "$MONITOR_ENV" == "prod" ]]; then
-        docker build --build-arg ENV=$MONITOR_ENV --platform linux/amd64 -t sophonhub/sophon-light-node:$VERSION .
+        docker build --build-arg MONITOR_ENV=$MONITOR_ENV --platform linux/amd64 -t sophonhub/sophon-light-node:$VERSION .
         docker tag sophonhub/sophon-light-node:$VERSION sophonhub/sophon-light-node:latest
         docker push sophonhub/sophon-light-node:$VERSION
         docker push sophonhub/sophon-light-node:latest
