@@ -43,14 +43,14 @@ jobs:
        git commit -m "Update Cargo.toml version to $VERSION"
        git push
 
-   - name: Set environment
-     id: env
+   - name: Set monitor_env
+     id: monitor_env
      run: |
        if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
-         echo "env=prod" >> $GITHUB_OUTPUT
+         echo "monitor_env=prod" >> $GITHUB_OUTPUT
          echo "prerelease=false" >> $GITHUB_OUTPUT
        else
-         echo "env=stg" >> $GITHUB_OUTPUT
+         echo "monitor_env=stg" >> $GITHUB_OUTPUT
          echo "prerelease=true" >> $GITHUB_OUTPUT
        fi
 
@@ -67,21 +67,21 @@ jobs:
    - name: Create tarball
      run: |
        VERSION=${{ steps.previous_version.outputs.new_version }}
-       ENV=${{ steps.env.outputs.env }}
+       MONITOR_ENV=${{ steps.monitor_env.outputs.monitor_env }}
        mkdir -p release
        cp target/release/sophon-node release/
        cp target/release/generate_node_id release/
        cd release/
-       tar -czf "../binaries-$VERSION-$ENV.tar.gz" *
+       tar -czf "../binaries-$VERSION-$MONITOR_ENV.tar.gz" *
        cd ..
        
    - name: Create Git Tag
      run: |
       VERSION=${{ steps.previous_version.outputs.new_version }}
-      ENV=${{ steps.env.outputs.env }}
+      MONITOR_ENV=${{ steps.monitor_env.outputs.monitor_env }}
       git config user.name "GitHub Actions"
       git config user.email "github-actions@github.com"
-      git tag -a "v$VERSION" -m "Release v$VERSION ($ENV)"
+      git tag -a "v$VERSION" -m "Release v$VERSION ($MONITOR_ENV)"
       git push origin "v$VERSION"
 
    - name: Create Release
@@ -90,10 +90,10 @@ jobs:
      env:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
      with:
-       tag_name: v${{ steps.previous_version.outputs.new_version }}-${{ steps.env.outputs.env }}
-       release_name: Release ${{ steps.previous_version.outputs.new_version }} (${{ steps.env.outputs.env }})
+       tag_name: v${{ steps.previous_version.outputs.new_version }}-${{ steps.monitor_env.outputs.monitor_env }}
+       release_name: Release ${{ steps.previous_version.outputs.new_version }} (${{ steps.monitor_env.outputs.monitor_env }})
        draft: false
-       prerelease: ${{ steps.env.outputs.prerelease }}
+       prerelease: ${{ steps.monitor_env.outputs.prerelease }}
        
    - name: Upload Release Asset
      uses: actions/upload-release-asset@v1
@@ -101,8 +101,8 @@ jobs:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
      with:
        upload_url: ${{ steps.create_release.outputs.upload_url }}
-       asset_path: ./binaries-${{ steps.previous_version.outputs.new_version }}-${{ steps.env.outputs.env }}.tar.gz
-       asset_name: binaries-${{ steps.previous_version.outputs.new_version }}-${{ steps.env.outputs.env }}.tar.gz
+       asset_path: ./binaries-${{ steps.previous_version.outputs.new_version }}-${{ steps.monitor_env.outputs.monitor_env }}.tar.gz
+       asset_name: binaries-${{ steps.previous_version.outputs.new_version }}-${{ steps.monitor_env.outputs.monitor_env }}.tar.gz
        asset_content_type: application/gzip
 
    - uses: docker/login-action@v2
@@ -115,16 +115,16 @@ jobs:
    - name: Build and Push to Dockerhub
      run: |
       VERSION=${{ steps.previous_version.outputs.new_version }}
-      ENV=${{ steps.env.outputs.env }}
+      MONITOR_ENV=${{ steps.monitor_env.outputs.monitor_env }}
       
-      if [[ "$ENV" == "prod" ]]; then
-        docker build --build-arg ENV=$ENV --platform linux/amd64 -t sophonhub/sophon-light-node:$VERSION .
+      if [[ "$MONITOR_ENV" == "prod" ]]; then
+        docker build --build-arg MONITOR_ENV=$MONITOR_ENV --platform linux/amd64 -t sophonhub/sophon-light-node:$VERSION .
         docker tag sophonhub/sophon-light-node:$VERSION sophonhub/sophon-light-node:latest
         docker push sophonhub/sophon-light-node:$VERSION
         docker push sophonhub/sophon-light-node:latest
       else
-        docker build --build-arg ENV=$ENV --platform linux/amd64 -t sophonhub/sophon-light-node:$VERSION-$ENV .
-        docker tag sophonhub/sophon-light-node:$VERSION-$ENV sophonhub/sophon-light-node:latest-$ENV
-        docker push sophonhub/sophon-light-node:$VERSION-$ENV
-        docker push sophonhub/sophon-light-node:latest-$ENV
+        docker build --build-arg MONITOR_ENV=$MONITOR_ENV --platform linux/amd64 -t sophonhub/sophon-light-node:$VERSION-$MONITOR_ENV .
+        docker tag sophonhub/sophon-light-node:$VERSION-$MONITOR_ENV sophonhub/sophon-light-node:latest-$MONITOR_ENV
+        docker push sophonhub/sophon-light-node:$VERSION-$MONITOR_ENV
+        docker push sophonhub/sophon-light-node:latest-$MONITOR_ENV
       fi
