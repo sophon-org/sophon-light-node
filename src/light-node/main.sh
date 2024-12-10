@@ -160,6 +160,14 @@ check_version() {
     log "🔍 Checking version requirements..."
     local env="$1"
     local auto_upgrade="${2:-false}"
+
+
+    # if staging environment, we skip the version check
+    if [ "$env" = "stg" ]; then
+        log "🔍 Skipping version check for staging environment"
+        return 1
+    fi
+
     local latest_version current_version minimum_version
     { 
         latest_version=$(get_latest_version $env)
