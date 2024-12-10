@@ -19,7 +19,7 @@ RUN echo "${BUILD_TYPE}" > environment
 # download binary based on the image tag
 RUN set -x && \
     GITHUB_BASE_URL="https://api.github.com/repos/sophon-org/sophon-light-node/releases" && \
-    if [[ "$(cat /etc/hostname)" == *"rc"* ]]; then \
+    if [ "$(cat environment)" = "stg" ]; then \
         RELEASE_INFO=$(curl -s ${GITHUB_BASE_URL} | jq '[.[] | select(.prerelease == true)][0]'); \
     else \
         RELEASE_INFO=$(curl -s ${GITHUB_BASE_URL}/latest); \

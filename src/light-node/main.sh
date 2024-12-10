@@ -325,6 +325,7 @@ parse_args() {
 
     # read the baked-in environment that can't be overridden
     env=$(detect_environment)
+    log "🔍 Environment: $env"
 
     # set monitor_url based on baked-in environment
     case "$env" in
