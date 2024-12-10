@@ -75,6 +75,12 @@ To be able to earn rewards you need to make sure that the Light Node is register
 
 By using the Railway template (or the Docker image), we automatically register your node for you given the right environment variables are passed.
 
+### I want to retrieve my node information
+```
+curl -X GET "https://monitor.sophon.xyz/nodes?operators=OPERATOR_ADDRESS
+```
+`operators` filter takes comma-separated addresses.
+
 ### I want to change my node URL (or IP)
 ```
 curl -X PUT "https://monitor.sophon.xyz/nodes" \
@@ -82,18 +88,10 @@ curl -X PUT "https://monitor.sophon.xyz/nodes" \
 -H "Authorization: Bearer SIGNED_MESSAGE" \
 -d '{ "operator": "OPERATOR_ADDRESS", "url": "NEW_URL", "timestamp": TIMESTAMP}'
 ```
+*This calls requires you to sign a message so we can verify you are the owner of the operator address.*
 
 ### I want to delete my node
 Registered nodes can not be deleted.
-
-### I want to retrieve my node information
-```
-curl -X GET "https://monitor.sophon.xyz/nodes?operator=OPERATOR_ADDRESS&timestamp=TIMESTAMP" \
--H "Content-Type: application/json" \
--H "Authorization: Bearer SIGNED_MESSAGE"
-```
-
-*These calls requires you to sign a message so we can verify you are the owner of the operator address.*
 
 ### How do I sign the authorization message?
 The signed message is a UNIX timestamp (in seconds format) signed with your operator wallet. Signatures expire after 15 minutes.
