@@ -112,8 +112,8 @@ jobs:
           docker push sophonhub/sophon-light-node:latest
         else
           docker build --build-arg BUILD_TYPE=stg --platform linux/amd64 \
-            -t sophonhub/sophon-light-node:v${VERSION}-stg \
+            -t sophonhub/sophon-light-node:v${VERSION} \
             -t sophonhub/sophon-light-node:latest-stg .
-          docker push sophonhub/sophon-light-node:v${VERSION}-stg
+          docker push sophonhub/sophon-light-node:v${VERSION}
           docker push sophonhub/sophon-light-node:latest-stg
         fi
