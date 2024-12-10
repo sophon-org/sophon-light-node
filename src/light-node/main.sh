@@ -25,12 +25,11 @@ get_latest_version_info() {
     fi
 }
 
-# Get latest version from Github releases
 get_latest_version() {
-    echo $(get_latest_version_info $1 | jq -r '.tag_name')
+    # returns raw tag without the 'v' prefix
+    echo $(get_latest_version_info $1 | jq -r '.tag_name' | sed 's/^v//')
 }
 
-# Get minimum version from config
 get_minimum_version() {
     local config_response
     
@@ -39,7 +38,6 @@ get_minimum_version() {
         echo "0.0.0"
     fi
 
-    # Extract minimum_version from YAML
     local min_version
     min_version=$(echo "$config_response" | grep "sophon_minimum_required_version" | cut -d'"' -f2 || echo "")
     
@@ -47,25 +45,27 @@ get_minimum_version() {
         echo "0.0.0"
     fi
     
-    echo "$min_version"
+    # strip any -stg suffix for minimum version comparison
+    echo "$min_version" | sed 's/-stg$//'
 }
 
 get_current_version() {
+    local version="0.0.0"
+    
     if [ -f "./sophon-node" ] && [ -x "./sophon-node" ]; then
-        ./sophon-node --version 2>/dev/null || echo "0.0.0"
-    else
-        # If running locally, check in target/release
-        if [ -f "./target/release/sophon-node" ] && [ -x "./target/release/sophon-node" ]; then
-            ./target/release/sophon-node --version 2>/dev/null || echo "0.0.0"
-        else
-            echo "0.0.0"
-        fi
+        version=$(./sophon-node --version 2>/dev/null || echo "0.0.0")
+    elif [ -f "./target/release/sophon-node" ] && [ -x "./target/release/sophon-node" ]; then
+        version=$(./target/release/sophon-node --version 2>/dev/null || echo "0.0.0")
     fi
+
+    # remove 'v' prefix if present
+    echo "$version" | sed 's/^v//'
 }
 
 compare_versions() {
-    local v1=$(echo "$1" | sed 's/^v//; s/-.*//')  # Normalize version (remove "v" and pre-release info)
-    local v2=$(echo "$2" | sed 's/^v//; s/-.*//')
+    # remove the -stg suffix if present and v prefix for comparison
+    local v1=$(echo "$1" | sed 's/^v//; s/-stg$//')
+    local v2=$(echo "$2" | sed 's/^v//; s/-stg$//')
 
     if [[ -z "$v1" || -z "$v2" ]]; then
         echo "Error: Missing version input" >&2
@@ -160,13 +160,6 @@ check_version() {
     log "🔍 Checking version requirements..."
     local env="$1"
     local auto_upgrade="${2:-false}"
-
-    # If staging environment, we skip the version check
-    if [ "$env" = "stg" ]; then
-        log "🔍 Skipping version check for staging environment"
-        return 1
-    fi
-
     local latest_version current_version minimum_version
     { 
         latest_version=$(get_latest_version $env)
@@ -259,6 +252,16 @@ validate_requirements() {
     fi
 }
 
+detect_environment() {
+    # try environment config file in current directory
+    if [ -f "environment" ]; then
+        cat environment
+    else
+        # default to prod for local development
+        echo "prod"
+    fi
+}
+
 parse_args() {
     # Initialize variables with defaults
     env="$DEFAULT_ENV"
@@ -306,29 +309,27 @@ parse_args() {
                 auto_upgrade="$2"
                 shift 2
                 ;;
-            --env)
-                env="$2"
-                shift 2
-                ;;
             *)
                 die "Unknown option: $1"
                 ;;
         esac
     done
 
-    # if --monitor-url is not passed, set monitor_url based on environment variable
-    if [ -z "${monitor_url:-}" ]; then
-        case "$env" in
-            stg)
-                monitor_url="$STG_MONITOR_URL"
-                ;;
-            *)
-                monitor_url="$PROD_MONITOR_URL"
-                ;;
-        esac
-    fi
+    # read the baked-in environment that can't be overridden
+    env=$(detect_environment)
 
-    # Export variables for child scripts
+    # set monitor_url based on baked-in environment
+    case "$env" in
+        stg)
+            monitor_url="$STG_MONITOR_URL"
+            ;;
+        *)
+            monitor_url="$PROD_MONITOR_URL"
+            ;;
+    esac
+    log "🔍 Monitor URL: $monitor_url"
+
+    # export variables for child scripts
     export env network monitor_url operator destination percentage public_domain identity auto_upgrade
 }
 

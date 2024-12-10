@@ -1,13 +1,7 @@
-ARG MONITOR_ENV=prod
 FROM ubuntu:latest
 
-# Re-declare the ARG after FROM to use in RUN commands
-ARG MONITOR_ENV
+ARG BUILD_TYPE=prod
 
-# Make ARG available as ENV var for runtime
-ENV MONITOR_ENV=${MONITOR_ENV}
-
-# Install minimal dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
@@ -20,9 +14,12 @@ RUN apt-get update && \
 
 WORKDIR /app
 
+RUN echo "${BUILD_TYPE}" > environment
+
+# download binary based on the image tag
 RUN set -x && \
     GITHUB_BASE_URL="https://api.github.com/repos/sophon-org/sophon-light-node/releases" && \
-    if [ "${MONITOR_ENV}" = "stg" ]; then \
+    if [[ "$(cat /etc/hostname)" == *"rc"* ]]; then \
         RELEASE_INFO=$(curl -s ${GITHUB_BASE_URL} | jq '[.[] | select(.prerelease == true)][0]'); \
     else \
         RELEASE_INFO=$(curl -s ${GITHUB_BASE_URL}/latest); \
@@ -35,4 +32,4 @@ RUN set -x && \
     chmod +x sophon-node
 
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["/app/sophon-node ${MONITOR_ENV:+--env $MONITOR_ENV} ${OPERATOR_ADDRESS:+--operator $OPERATOR_ADDRESS} ${DESTINATION_ADDRESS:+--destination $DESTINATION_ADDRESS} ${PERCENTAGE:+--percentage $PERCENTAGE} ${IDENTITY:+--identity $IDENTITY} ${PUBLIC_DOMAIN:+--public-domain $PUBLIC_DOMAIN} ${MONITOR_URL:+--monitor-url $MONITOR_URL} ${NETWORK:+--network $NETWORK} ${AUTO_UPGRADE:+--auto-upgrade $AUTO_UPGRADE}"]
+CMD ["/app/sophon-node ${OPERATOR_ADDRESS:+--operator $OPERATOR_ADDRESS} ${DESTINATION_ADDRESS:+--destination $DESTINATION_ADDRESS} ${PERCENTAGE:+--percentage $PERCENTAGE} ${IDENTITY:+--identity $IDENTITY} ${PUBLIC_DOMAIN:+--public-domain $PUBLIC_DOMAIN} ${MONITOR_URL:+--monitor-url $MONITOR_URL} ${NETWORK:+--network $NETWORK} ${AUTO_UPGRADE:+--auto-upgrade $AUTO_UPGRADE}"]
