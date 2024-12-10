@@ -67,10 +67,17 @@ jobs:
     - name: Create Git Tag
       run: |
         VERSION=${{ steps.version.outputs.version }}
-        git config user.name "GitHub Actions"
-        git config user.email "github-actions@github.com"
-        git tag -a "v$VERSION" -m "Release v$VERSION"
-        git push origin "v$VERSION"
+        
+        # check if tag exists
+        if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          echo "Tag v$VERSION already exists, skipping tag creation"
+          exit 0
+        else
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+        fi
 
     - name: Create Release
       id: create_release
