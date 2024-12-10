@@ -22,7 +22,9 @@ jobs:
         CURRENT_VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
         
         if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
-          NEW_VERSION=$CURRENT_VERSION
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+          ((VERSION_PARTS[2]++))
+          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
         else
           IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
           ((VERSION_PARTS[2]++))
@@ -30,6 +32,17 @@ jobs:
         fi
         
         echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+    - name: Update version in Cargo.toml
+      if: github.ref == 'refs/heads/main'
+      run: |
+        VERSION=${{ steps.version.outputs.version }}
+        sed -i "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@github.com"
+        git add Cargo.toml
+        git commit -m "Update Cargo.toml version to $VERSION"
+        git push
 
     - name: Build release
       run: cargo build --release
