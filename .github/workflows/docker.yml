@@ -78,6 +78,28 @@ jobs:
           git tag -a "v$VERSION" -m "Release v$VERSION"
           git push origin "v$VERSION"
         fi
+      
+    - name: Delete existing release (if it exists)
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const version = "${{ steps.version.outputs.version }}";
+          const tag = `v${version}`;
+          const release = await github.repos.getReleaseByTag({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            tag: tag
+          });
+          await github.repos.deleteRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: release.data.id,
+          });
+          await github.git.deleteRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: "tags/${tag}",
+          });
 
     - name: Create Release
       id: create_release
