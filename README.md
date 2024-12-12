@@ -81,12 +81,13 @@ curl -X GET "https://monitor.sophon.xyz/nodes?operators=OPERATOR_ADDRESS
 ```
 `operators` filter takes comma-separated addresses.
 
-### I want to change my node URL (or IP)
+### I want to change some params of my node
+You can change your node's URL (or IP) and/or destination address: 
 ```
 curl -X PUT "https://monitor.sophon.xyz/nodes" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer SIGNED_MESSAGE" \
--d '{ "operator": "OPERATOR_ADDRESS", "url": "NEW_URL", "timestamp": TIMESTAMP}'
+-d '{ "operator": "OPERATOR_ADDRESS", "url": "NEW_URL", "destination": "NEW_DESTINATION", "timestamp": TIMESTAMP}'
 ```
 *This calls requires you to sign a message so we can verify you are the owner of the operator address.*
 
