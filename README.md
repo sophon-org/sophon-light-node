@@ -34,7 +34,7 @@ More info on the following env variables on [Environment variables](#environment
 # pull docker image
 docker pull --platform linux/amd64 sophonhub/sophon-light-node
 
-# if you want to use the staging environment
+# if you want to use the testnet environment
 docker pull --platform linux/amd64 sophonhub/sophon-light-node:latest-stg
 
 # run node
@@ -45,8 +45,12 @@ docker run -d --name sophon-light-node \
     -e OPERATOR_ADDRESS=<You operator wallet address> \
     -e DESTINATION_ADDRESS=<The rewards destination wallet address> \
     -e PERCENTAGE=<The percentage this node will charge as rewards fee from delegators> \
-    -e PUBLIC_DOMAIN=<Your public URL/IP> \
+    -e PUBLIC_DOMAIN=<Your public URL/IP, including protocol (HTTP or HTTPS) on an acessible `PORT` if not 8080> \
+    -e PORT=<PORT you want the service to run. It defaults to 7007> \
+    -p <External acessible PORT>:<Internal port defined above, or defaults to 7007> \
     sophonhub/sophon-light-node
+
+# Don't forget to change to sophonhub/sophon-light-node:latest-stg for testnet in case you have both images
 ```
 
 ## Reliability
@@ -65,7 +69,9 @@ DESTINATION_ADDRESS= # [OPTIONAL] this is the wallet address that will receive r
 
 PERCENTAGE= # [OPTIONAL] The percentage this node will charge as rewards fee from delegators. Basically, rewards are calculated based on delegated amount, and this percentage defines how much goes to you as node operator, and the rest goes to delegators. It must be a decimal from 0.00 to 100. Only 2 decimals allowed. **Required** if OPERATOR_ADDRESS is set, ignored otherwise.
 
-PUBLIC_DOMAIN= # [OPTIONAL] this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers. **Required** if OPERATOR_ADDRESS is set.
+PUBLIC_DOMAIN= # [OPTIONAL] this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers. Please include protocol or it defaults to HTTPS. **Required** if OPERATOR_ADDRESS is set.
+
+PORT= # [OPTIONAL] In case you want the service to run on a different PORT than 7007
 ```
 
 ## FAQ
