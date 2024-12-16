@@ -34,7 +34,7 @@ More info on the following env variables on [Environment variables](#environment
 # pull docker image
 docker pull --platform linux/amd64 sophonhub/sophon-light-node
 
-# if you want to use the staging environment
+# if you want to use the testnet environment
 docker pull --platform linux/amd64 sophonhub/sophon-light-node:latest-stg
 
 # run node
@@ -49,6 +49,8 @@ docker run -d --name sophon-light-node \
     -e PORT=<PORT you want the service to run. It defaults to 7007> \
     -p <External acessible PORT>:<Internal port defined above, or defaults to 7007> \
     sophonhub/sophon-light-node
+
+# Don't forget to change to sophonhub/sophon-light-node:latest-stg for testnet in case you have both images
 ```
 
 ## Reliability
