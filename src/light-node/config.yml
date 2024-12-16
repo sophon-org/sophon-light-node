@@ -5,7 +5,7 @@ bootstraps = [
 full_node_ws = [
     "wss://mainnet.avail-rpc.com",
     "wss://avail-mainnet.public.blastapi.io",
-    "wss://avail.api.onfinality.io/ws?apikey=13f13c3f-28e8-4120-bf7f-12fd20686907",
+    "wss://avail.api.onfinality.io/public-ws",
     "wss://avail-us.brightlystake.com",
     "wss://avail-rpc.publicnode.com"
 ]
