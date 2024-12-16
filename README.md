@@ -75,11 +75,21 @@ To be able to earn rewards you need to make sure that the Light Node is register
 
 By using the Railway template (or the Docker image), we automatically register your node for you given the right environment variables are passed.
 
+### I want to retrieve all nodes information
+```
+curl -X GET "https://monitor.sophon.xyz/nodes"
+```
+
 ### I want to retrieve my node information
+You can filter nodes by using the `operators` filter. It takes comma-separated addresses.
 ```
-curl -X GET "https://monitor.sophon.xyz/nodes?operators=OPERATOR_ADDRESS
+curl -X GET "https://monitor.sophon.xyz/nodes?operators=0xOPERATOR1,0xOPERATOR2"
 ```
-`operators` filter takes comma-separated addresses.
+Additionally, you can also define the `page` and `per_page` params. For example:
+```
+curl -X GET "https://monitor.sophon.xyz/nodes?page=3&per_page=10"
+```
+will return 10 nodes per page and we are asking for the 3rd page.
 
 ### I want to change some params of my node
 You can change your node's URL (or IP) and/or destination address: 
