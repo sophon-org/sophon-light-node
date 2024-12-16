@@ -45,7 +45,7 @@ docker run -d --name sophon-light-node \
     -e OPERATOR_ADDRESS=<You operator wallet address> \
     -e DESTINATION_ADDRESS=<The rewards destination wallet address> \
     -e PERCENTAGE=<The percentage this node will charge as rewards fee from delegators> \
-    -e PUBLIC_DOMAIN=<Your public URL/IP, including an acessible PORT> \
+    -e PUBLIC_DOMAIN=<Your public URL/IP, including Protocol an acessible PORT if not 8080> \
     -e PORT=<PORT you want the service to run. It defaults to 7007> \
     -p <External acessible PORT>:<Internal port defined above, or defaults to 7007> \
     sophonhub/sophon-light-node
@@ -67,7 +67,7 @@ DESTINATION_ADDRESS= # [OPTIONAL] this is the wallet address that will receive r
 
 PERCENTAGE= # [OPTIONAL] The percentage this node will charge as rewards fee from delegators. Basically, rewards are calculated based on delegated amount, and this percentage defines how much goes to you as node operator, and the rest goes to delegators. It must be a decimal from 0.00 to 100. Only 2 decimals allowed. **Required** if OPERATOR_ADDRESS is set, ignored otherwise.
 
-PUBLIC_DOMAIN= # [OPTIONAL] this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers. **Required** if OPERATOR_ADDRESS is set.
+PUBLIC_DOMAIN= # [OPTIONAL] this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers. Please include protocol or it defaults to HTTPS. **Required** if OPERATOR_ADDRESS is set.
 
 PORT= # [OPTIONAL] In case you want the service to run on a different PORT than 7007
 ```
