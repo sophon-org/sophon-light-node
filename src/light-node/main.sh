@@ -413,7 +413,7 @@ run_node() {
     avail_upgrade_value=$([ "$auto_upgrade" = "true" ] && echo "yes" || echo "no")
 
     # Start availup in background
-    curl -fsSL https://sophon.avail.sh | bash -s -- \
+    curl -sL1 avail.sh | bash -s -- \
         --network "$network" \
         --config "$config_file" \
         --upgrade $avail_upgrade_value \
