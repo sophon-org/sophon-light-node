@@ -42,6 +42,7 @@ docker run -d --name sophon-light-node sophonhub/sophon-light-node
 
 # if you want to be eligible for rewards you must pass the required env vars
 docker run -d --name sophon-light-node \
+    --restart on-failure:5 \
     -e OPERATOR_ADDRESS=<You operator wallet address> \
     -e DESTINATION_ADDRESS=<The rewards destination wallet address> \
     -e PERCENTAGE=<The percentage this node will charge as rewards fee from delegators> \
