@@ -115,3 +115,15 @@ Registered nodes can not be deleted.
 The signed message is a UNIX timestamp (in seconds format) signed with your operator wallet. Signatures expire after 15 minutes.
 
 You can use [Etherscan](https://etherscan.io/verifiedSignatures#) to sign messages.
+
+### Do these endpoints have a rate limit?
+All endpoints are protected by rate limiting. The current configuration allows:
+
+- 60 requests per minute per IP address
+- Rate limit counters are stored in Redis with a 1-minute expiry
+- When limit is exceeded, returns 429 Too Many Requests status code
+  
+Rate limit headers in responses:
+- `X-RateLimit-Limit`: Maximum number of requests allowed per minute
+- `X-RateLimit-Remaining`: Number of requests remaining in the current window
+
