@@ -42,9 +42,10 @@ docker run -d --name sophon-light-node sophonhub/sophon-light-node
 
 # if you want to be eligible for rewards you must pass the required env vars
 docker run -d --name sophon-light-node \
+    --restart on-failure:5 \
     -e OPERATOR_ADDRESS=<You operator wallet address> \
     -e DESTINATION_ADDRESS=<The rewards destination wallet address> \
-    -e PERCENTAGE=<The percentage this node will charge as rewards fee from delegators> \
+    -e PERCENTAGE=<The percentage this node will charge as rewards fee from delegators. Can't be modified afterwards.> \
     -e PUBLIC_DOMAIN=<Your public URL/IP, including protocol (HTTP or HTTPS) on an acessible `PORT` if not 8080> \
     -e PORT=<PORT you want the service to run. It defaults to 7007> \
     -p <External acessible PORT>:<Internal port defined above, or defaults to 7007> \
@@ -67,7 +68,7 @@ OPERATOR_ADDRESS= # [OPTIONAL] Your Light Node operator address, which is the on
 
 DESTINATION_ADDRESS= # [OPTIONAL] this is the wallet address that will receive rewards from the Guardians programme (based on the percetage defined above). Most of the times it will be the operator address, but you can define a different one. Defaults to OPERATOR_ADDRESS if not set.
 
-PERCENTAGE= # [OPTIONAL] The percentage this node will charge as rewards fee from delegators. Basically, rewards are calculated based on delegated amount, and this percentage defines how much goes to you as node operator, and the rest goes to delegators. It must be a decimal from 0.00 to 100. Only 2 decimals allowed. **Required** if OPERATOR_ADDRESS is set, ignored otherwise.
+PERCENTAGE= # [OPTIONAL] The percentage this node will charge as rewards fee from delegators. Basically, rewards are calculated based on delegated amount, and this percentage defines how much goes to you as node operator, and the rest goes to delegators. It must be a decimal from 0.00 to 100. Only 2 decimals allowed. **Required** if OPERATOR_ADDRESS is set, ignored otherwise. Once it is set, it CAN NOT be modified.
 
 PUBLIC_DOMAIN= # [OPTIONAL] this is the public domain URL/IP where the node is running so it can be reach by the monitoring servers. Please include protocol or it defaults to HTTPS. **Required** if OPERATOR_ADDRESS is set.
 
@@ -107,6 +108,10 @@ curl -X PUT "https://monitor.sophon.xyz/nodes" \
 ```
 *This calls requires you to sign a message so we can verify you are the owner of the operator address.*
 
+### How do I change the percentage?
+Once you have set a percentage, it CAN NOT be modified.
+You will have to create a new operator address and ask for new delegations.
+
 ### I want to delete my node
 Registered nodes can not be deleted.
 
@@ -114,3 +119,15 @@ Registered nodes can not be deleted.
 The signed message is a UNIX timestamp (in seconds format) signed with your operator wallet. Signatures expire after 15 minutes.
 
 You can use [Etherscan](https://etherscan.io/verifiedSignatures#) to sign messages.
+
+### Do these endpoints have a rate limit?
+All endpoints are protected by rate limiting. The current configuration allows:
+
+- 60 requests per minute per IP address
+- Rate limit counters are stored in Redis with a 1-minute expiry
+- When limit is exceeded, returns 429 Too Many Requests status code
+  
+Rate limit headers in responses:
+- `X-RateLimit-Limit`: Maximum number of requests allowed per minute
+- `X-RateLimit-Remaining`: Number of requests remaining in the current window
+
