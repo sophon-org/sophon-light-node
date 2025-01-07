@@ -14,5 +14,5 @@ genesis_hash = "b91746b45e0346cc2f815a520b9c6cb4d5c0902af848db0a80f85932d2e8276a
 ot_collector_endpoint = "http://otel.lightclient.sophon.avail.so:4317"
 http_server_port = 7007
 http_server_host = "0.0.0.0"
-block_processing_delay = 50
-sophon_minimum_required_version = "0.0.60"
+block_processing_delay = 20
+sophon_minimum_required_version = "0.0.90"
