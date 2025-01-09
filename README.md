@@ -113,11 +113,11 @@ The signed message is a UNIX timestamp (in seconds format) signed with your oper
 
 You can use [Etherscan](https://etherscan.io/verifiedSignatures#) to sign messages.
 
-**Example to change our node's URL**
+**Example to change your node's URL**
 
-    1. Grab the current UNIX timestamp (you can use this [website]([url](https://www.unixtimestamp.com/))). Let's say its `1736417259`
-    2. Sign the message `1736417259` string using your operator wallet. One easy way to do this would be to use [Etherscan]([url](https://etherscan.io/verifiedSignatures#)). Open the link, click on the "Sign Message" button on the top right corner, connect your wallet, then input your message, which is simply the UNIX timestamp (e.g `1736417259`).
-    3. Copy the signed message and use it as on the `Authorization: Bearer SIGNED_MESSAGE` header.
+    1. Grab the current UNIX timestamp (you can use this website https://www.unixtimestamp.com). Let's say its `1736417259`
+    2. Sign the message `1736417259` string using your operator wallet. One easy way to do this would be to use https://etherscan.io/verifiedSignatures#. Open the link, click on the "Sign Message" button on the top right corner, connect your wallet, then input your message, which is simply the UNIX timestamp (e.g `1736417259`).
+    3. Copy the signed message and use it on the `Authorization` header -> `Authorization: Bearer SIGNED_MESSAGE`
     4. Send the request:
     
     curl -X PUT "https://monitor.sophon.xyz/nodes" \
