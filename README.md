@@ -108,17 +108,29 @@ curl -X PUT "https://monitor.sophon.xyz/nodes" \
 ```
 *This calls requires you to sign a message so we can verify you are the owner of the operator address.*
 
+### How do I sign the authorization message?
+The signed message is a UNIX timestamp (in seconds format) signed with your operator wallet. Signatures expire after 15 minutes.
+
+You can use [Etherscan](https://etherscan.io/verifiedSignatures#) to sign messages.
+
+**Example to change our node's URL**
+
+    1. Grab the current UNIX timestamp (you can use this [website]([url](https://www.unixtimestamp.com/))). Let's say its `1736417259`
+    2. Sign the message `1736417259` string using your operator wallet. One easy way to do this would be to use [Etherscan]([url](https://etherscan.io/verifiedSignatures#)). Open the link, click on the "Sign Message" button on the top right corner, connect your wallet, then input your message, which is simply the UNIX timestamp (e.g `1736417259`).
+    3. Copy the signed message and use it as on the `Authorization: Bearer SIGNED_MESSAGE` header.
+    4. Send the request:
+    
+    curl -X PUT "https://monitor.sophon.xyz/nodes" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer SIGNED_MESSAGE" \
+    -d '{ "operator": "OPERATOR_ADDRESS", "url": "NEW_URL", "timestamp": 1736417259}'
+    
 ### How do I change the percentage?
 Once you have set a percentage, it CAN NOT be modified.
 You will have to create a new operator address and ask for new delegations.
 
 ### I want to delete my node
 Registered nodes can not be deleted.
-
-### How do I sign the authorization message?
-The signed message is a UNIX timestamp (in seconds format) signed with your operator wallet. Signatures expire after 15 minutes.
-
-You can use [Etherscan](https://etherscan.io/verifiedSignatures#) to sign messages.
 
 ### Do these endpoints have a rate limit?
 All endpoints are protected by rate limiting. The current configuration allows:
