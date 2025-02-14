@@ -1,4 +1,3 @@
-
 # Sophon Light Node
 
 The Sophon Light Node are lightweight software designed to perform simpler tasks within the Sophon network. It is a cost-effective way to participate in the network, increasing the opportunity for Sophon Guardians to be rewarded, and for the community to participate.
@@ -12,6 +11,7 @@ For a guided experience, you can visit the [Guardians Dashboard](https://guardia
 ### Using third party node as a service providers
 
 Here is a list of providers that allow you to run a Sophon Light Node directly in their interface:
+
 - [Easeflow](https://easeflow.io)
 
 ### Using Railway
@@ -26,7 +26,7 @@ Bare in mind that you must have a Railway account and that costs might apply.
 
 Use our Docker image to run the Light Node anywhere you want. The main requirement is that you must be able to expose the container to the internet through a fixed domain/URL/IP.
 
-[![Docker](https://cdn.icon-icons.com/icons2/2530/PNG/128/dockerhub_button_icon_151899.png)](https://hub.docker.com/r/sophonhub/sophon-light-node)
+[![Docker](https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/dockerhub.png)](https://hub.docker.com/r/sophonhub/sophon-light-node)
 
 More info on the following env variables on [Environment variables](#environment-variables)
 
@@ -55,14 +55,16 @@ docker run -d --name sophon-light-node \
 ```
 
 ## Reliability
+
 If you are running the node on any VPS (including Railway) or even locally on your machine, it is important you set up some monitoring to ensure your node is always up and running. Even though we will have some tolerance to failures and downtimes, our rewards programme will calculate rewards based on uptime.
 
 ## Environment variables
 
-While this is not required to run a node, bear in mind that if you want to participate in Sophon's Guardians Reward Program, you MUST set your operator wallet address. *If you either do not pass any address or you pass an address that doesn't contain any Guardian Membership delegations, the node will run but you won't be eligible for rewards. Now more about rewards in our [Docs](https://docs.sophon.xyz/sophon/sophon-guardians-and-nodes/node-rewards).*
+While this is not required to run a node, bear in mind that if you want to participate in Sophon's Guardians Reward Program, you MUST set your operator wallet address. _If you either do not pass any address or you pass an address that doesn't contain any Guardian Membership delegations, the node will run but you won't be eligible for rewards. Now more about rewards in our [Docs](https://docs.sophon.xyz/sophon/sophon-guardians-and-nodes/node-rewards)._
 
-If you're using Railway, all variables are pre-populated for you except for your **operator wallet address** and **percentage**. 
+If you're using Railway, all variables are pre-populated for you except for your **operator wallet address** and **percentage**.
 If decide not to use Railway, you can use our Docker image making sure to set the following environment variables:
+
 ```
 OPERATOR_ADDRESS= # [OPTIONAL] Your Light Node operator address, which is the one that must receive delegations to be eligible to receive rewards. The more delegations, the more rewards, with a cap limit of 20 delegations. **Required** if you want to participate on the rewards programme.
 
@@ -78,56 +80,70 @@ PORT= # [OPTIONAL] In case you want the service to run on a different PORT than 
 ## FAQ
 
 ### How do I earn rewards?
+
 To be able to earn rewards you need to make sure that the Light Node is registered on Sophon so we can monitor your node's activity.
 
 By using the Railway template (or the Docker image), we automatically register your node for you given the right environment variables are passed.
 
 ### I want to retrieve all nodes information
+
 ```
 curl -X GET "https://monitor.sophon.xyz/nodes"
 ```
 
 ### I want to retrieve my node information
+
 You can filter nodes by using the `operators` filter. It takes comma-separated addresses.
+
 ```
 curl -X GET "https://monitor.sophon.xyz/nodes?operators=0xOPERATOR1,0xOPERATOR2"
 ```
+
 Additionally, you can also define the `page` and `per_page` params. For example:
+
 ```
 curl -X GET "https://monitor.sophon.xyz/nodes?page=3&per_page=10"
 ```
+
 will return 10 nodes per page and we are asking for the 3rd page.
 
 ### I want to change some params of my node
-You can change your node's URL (or IP) and/or destination address: 
+
+You can change your node's URL (or IP) and/or destination address:
+
 ```
 curl -X PUT "https://monitor.sophon.xyz/nodes" \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer SIGNED_MESSAGE" \
 -d '{ "operator": "OPERATOR_ADDRESS", "url": "NEW_URL", "destination": "NEW_DESTINATION", "timestamp": TIMESTAMP}'
 ```
-*This calls requires you to sign a message so we can verify you are the owner of the operator address.*
+
+_This calls requires you to sign a message so we can verify you are the owner of the operator address._
 
 ### How do I change the percentage?
+
 Once you have set a percentage, it CAN NOT be modified.
 You will have to create a new operator address and ask for new delegations.
 
 ### I want to delete my node
+
 Registered nodes can not be deleted.
 
 ### How do I sign the authorization message?
+
 The signed message is a UNIX timestamp (in seconds format) signed with your operator wallet. Signatures expire after 15 minutes.
 
 You can use [Etherscan](https://etherscan.io/verifiedSignatures#) to sign messages.
 
 ### Do these endpoints have a rate limit?
+
 All endpoints are protected by rate limiting. The current configuration allows:
 
 - 60 requests per minute per IP address
 - Rate limit counters are stored in Redis with a 1-minute expiry
 - When limit is exceeded, returns 429 Too Many Requests status code
-  
+
 Rate limit headers in responses:
+
 - `X-RateLimit-Limit`: Maximum number of requests allowed per minute
 - `X-RateLimit-Remaining`: Number of requests remaining in the current window
-
