@@ -26,7 +26,9 @@ Bare in mind that you must have a Railway account and that costs might apply.
 
 Use our Docker image to run the Light Node anywhere you want. The main requirement is that you must be able to expose the container to the internet through a fixed domain/URL/IP.
 
-[![Docker](https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/dockerhub.png)](https://hub.docker.com/r/sophonhub/sophon-light-node)
+<a href="https://hub.docker.com/r/sophonhub/sophon-light-node">
+    <img src="https://raw.githubusercontent.com/sophon-org/sophon-light-node/refs/heads/main/dockerhub.png" alt="Docker" height="40"/>
+</a>
 
 More info on the following env variables on [Environment variables](#environment-variables)
 
