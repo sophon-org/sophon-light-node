@@ -410,7 +410,7 @@ run_node() {
     config_file=$(create_avail_config)
 
     # Convert true/false to yes/no for upgrade parameter
-    avail_upgrade_value=$([ "$auto_upgrade" = "true" ] && echo "yes" || echo "no")
+    avail_upgrade_value=$([ "$auto_upgrade" = "true" ] && echo "y" || echo "n")
 
     # Start availup in background
     curl -sL1 avail.sh | bash -s -- \
