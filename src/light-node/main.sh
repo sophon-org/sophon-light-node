@@ -279,7 +279,8 @@ parse_args() {
     percentage=""
     public_domain=""
     identity="$HOME/.avail/identity/identity.toml"
-    auto_upgrade="false" 
+    auto_upgrade="false"
+    overwrite_config="true"
     VERSION_CHECKER_INTERVAL="${VERSION_CHECKER_INTERVAL:-$DEFAULT_VERSION_CHECKER_INTERVAL}"
 
     # Parse command line arguments
@@ -315,6 +316,10 @@ parse_args() {
                 ;;
             --auto-upgrade)
                 auto_upgrade="$2"
+                shift 2
+                ;;
+            --overwrite-config)
+                overwrite_config="$2"
                 shift 2
                 ;;
             *)
@@ -485,19 +490,23 @@ create_avail_config() {
     local config_dir="$HOME/.avail/$network/config"
     local config_file="$config_dir/config.yml"
     
-    # Create config directory if it doesn't exist
-    mkdir -p "$config_dir"
+    if [ -e "$config_file" ] && [ "$overwrite_config" != "true" ]; then
+        echo "$config_file"
+    else
+        # Create config directory if it doesn't exist
+        mkdir -p "$config_dir"
 
-    # Download config file
-    curl -s -H "Cache-Control: no-cache" "$CONFIG_URL" -o "$config_file"
+        # Download config file
+        curl -s -H "Cache-Control: no-cache" "$CONFIG_URL" -o "$config_file"
 
-    # if PORT is set, update the port in the config file
-    if [ -n "${PORT:-}" ] && [ "$PORT" != "7007" ]; then
-        temp_file=$(mktemp)
-        sed "s/http_server_port = .*/http_server_port = $PORT/" "$config_file" > "$temp_file"
-        mv "$temp_file" "$config_file"
+        # if PORT is set, update the port in the config file
+        if [ -n "${PORT:-}" ] && [ "$PORT" != "7007" ]; then
+            temp_file=$(mktemp)
+            sed "s/http_server_port = .*/http_server_port = $PORT/" "$config_file" > "$temp_file"
+            mv "$temp_file" "$config_file"
+        fi
+        echo "$config_file"
     fi
-    echo "$config_file"
 }
 
 cleanup() {
