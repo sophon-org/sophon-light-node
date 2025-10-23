@@ -1,7 +1,6 @@
 project_name = "sophon"
 bootstraps = [
-    "/dns/bootnode.1.lightclient.mainnet.avail.so/tcp/37000/p2p/12D3KooW9x9qnoXhkHAjdNFu92kMvBRSiFBMAoC5NnifgzXjsuiM",
-    "/dns/bootnode.2.lightclient.mainnet.avail.so/tcp/37000/p2p/12D3KooWSPvXWWGvL5jLQrDRDfvw1yHHuu4VyUjBN5uPjtaZjTJB"
+    "/dns/bootnode.1.lightclient.mainnet-mmp.avail.so/tcp/37000/p2p/12D3KooWHgPbEYcvZvZz4aT3KiBdjQmphG5qJ9StWoUps1ofKbJx"
 ]
 full_node_ws = [
     "wss://mainnet.avail-rpc.com",
